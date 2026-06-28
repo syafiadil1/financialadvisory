@@ -172,31 +172,11 @@ if ("loginRequired".equals(error)) {
 						<div class="mb-4">
 							<h2 class="fw-bold mb-1">Welcome back</h2>
 							<p class="text-secondary mb-0">
-								Choose a role to preview the frontend
+								Sign in to your account to continue
 							</p>
 						</div>
 
-						<div class="alert alert-primary border-0 rounded-4 small">
-							<i class="bi bi-info-circle me-2"></i>
-							Frontend demo mode — no database authentication is required.
-						</div>
-
-						<form id="frontendLoginForm">
-
-							<div class="mb-3">
-								<label class="form-label fw-semibold small" for="demoRole">Preview Role</label>
-								<div class="input-group">
-									<span class="input-group-text bg-white">
-										<i class="bi bi-person-badge text-secondary"></i>
-									</span>
-									<select class="form-select" id="demoRole" required>
-										<option value="staff">Staff</option>
-										<option value="departmentmanager">Department Manager</option>
-										<option value="financialmanager">Financial Manager</option>
-										<option value="admin">System Admin</option>
-									</select>
-								</div>
-							</div>
+						<form action="LoginController" method="post">
 
 							<div class="mb-3">
 								<label class="form-label fw-semibold small">Email Address</label>
@@ -204,8 +184,8 @@ if ("loginRequired".equals(error)) {
 									<span class="input-group-text bg-white">
 										<i class="bi bi-envelope text-secondary"></i>
 									</span>
-									<input type="email" class="form-control" id="email"
-										name="email" placeholder="you@company.com" value="demo@company.com" required>
+									<input type="email" class="form-control"
+										name="email" placeholder="you@company.com" required>
 								</div>
 							</div>
 
@@ -215,8 +195,8 @@ if ("loginRequired".equals(error)) {
 									<span class="input-group-text bg-white">
 										<i class="bi bi-lock text-secondary"></i>
 									</span>
-									<input type="password" class="form-control" id="password"
-										name="password" placeholder="Enter any password" value="demo123" required>
+									<input type="password" class="form-control"
+										name="password" placeholder="Enter your password" required>
 									<span class="input-group-text password-eye">
 										<i class="bi bi-eye text-secondary"></i>
 									</span>
@@ -273,28 +253,6 @@ if ("loginRequired".equals(error)) {
 	<!-- Bootstrap JS -->
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-	<script>
-		const loginForm = document.getElementById("frontendLoginForm");
-		const roleSelect = document.getElementById("demoRole");
-		const savedRole = localStorage.getItem("demoRole");
-
-		if (savedRole) roleSelect.value = savedRole;
-
-		loginForm.addEventListener("submit", function (event) {
-			event.preventDefault();
-			const role = roleSelect.value;
-			localStorage.setItem("demoRole", role);
-
-			window.location.href = role === "admin"
-				? "admin-user-list.jsp"
-				: "dashboard.jsp?role=" + encodeURIComponent(role);
-		});
-
-		document.querySelector(".password-eye").addEventListener("click", function () {
-			const password = document.getElementById("password");
-			password.type = password.type === "password" ? "text" : "password";
-		});
-	</script>
 
 </body>
 </html>
