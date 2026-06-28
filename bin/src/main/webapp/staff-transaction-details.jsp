@@ -145,7 +145,7 @@
 									</div>
 									<div class="col-md-4">
 										<label class="form-label">Payment Method</label>
-										<input type="text" class="form-control rounded-3"\
+										<input type="text" class="form-control rounded-3"
 											name="paymentMethod" value="<%= local_transaction != null ? local_transaction.getPaymentMethod() : "" %>" placeholder="e.g. Bank Transfer, Credit Card, Cash">
 									</div>
 									<div class="col-md-4">
@@ -163,8 +163,6 @@
 											<option>Approved</option>
 											<option>Rejected</option>
 										</select>\
-											
-
 									</div>
 									<div class="col-md-6">
 										<label class="form-label">Invoice / Reference Number</label>
