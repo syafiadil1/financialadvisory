@@ -1,0 +1,44 @@
+.ai-chatbot-widget {
+	bottom: 24px;
+	max-width: calc(100vw - 24px);
+	position: fixed;
+	right: 24px;
+	z-index: 1080;
+}
+
+.ai-chatbot-launcher {
+	height: 64px;
+	width: 64px;
+}
+
+.ai-chatbot-panel {
+	width: 340px;
+}
+
+.ai-chatbot-header {
+	user-select: none;
+}
+
+.ai-chatbot-messages {
+	max-height: 220px;
+	overflow-y: auto;
+}
+
+.ai-chatbot-widget.is-collapsed .ai-chatbot-panel {
+	display: none;
+}
+
+.ai-chatbot-widget:not(.is-collapsed) .ai-chatbot-launcher {
+	display: none !important;
+}
+
+@media (max-width: 576px) {
+	.ai-chatbot-widget {
+		bottom: 12px;
+		right: 12px;
+	}
+
+	.ai-chatbot-panel {
+		width: calc(100vw - 24px);
+	}
+}
