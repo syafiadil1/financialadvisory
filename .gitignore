@@ -7,3 +7,4 @@
 /util/DBConnection.a\java
 .settings/org.eclipse.wst.common.project.facet.core.xml
 .classpath
+/bin/
