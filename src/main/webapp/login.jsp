@@ -111,15 +111,6 @@
 </head>
 
 <body>
-<<<<<<< HEAD
-	<div class="container-fluid p-0">
-		<div class="row g-0 min-vh-100">
-
-			<!-- Left Branding Section -->
-			<div class="col-lg-5 login-left d-flex align-items-center">
-				<div class="login-left-content text-white px-5 py-5">
-
-=======
 <body>
 
 <%
@@ -140,7 +131,6 @@ if ("loginRequired".equals(error)) {
 			<div class="col-lg-5 login-left d-flex align-items-center">
 				<div class="login-left-content text-white px-5 py-5">
 
->>>>>>> main
 					<div class="d-flex align-items-center gap-2 mb-5">
 						<i class="bi bi-folder2-open fs-3"></i>
 						<div class="fw-bold lh-sm">
@@ -182,31 +172,6 @@ if ("loginRequired".equals(error)) {
 						<div class="mb-4">
 							<h2 class="fw-bold mb-1">Welcome back</h2>
 							<p class="text-secondary mb-0">
-<<<<<<< HEAD
-								Choose a role to preview the frontend
-							</p>
-						</div>
-
-						<div class="alert alert-primary border-0 rounded-4 small">
-							<i class="bi bi-info-circle me-2"></i>
-							Frontend demo mode — no database authentication is required.
-						</div>
-
-						<form id="frontendLoginForm">
-
-							<div class="mb-3">
-								<label class="form-label fw-semibold small" for="demoRole">Preview Role</label>
-								<div class="input-group">
-									<span class="input-group-text bg-white">
-										<i class="bi bi-person-badge text-secondary"></i>
-									</span>
-									<select class="form-select" id="demoRole" required>
-										<option value="staff">Staff</option>
-										<option value="departmentmanager">Department Manager</option>
-										<option value="financialmanager">Financial Manager</option>
-										<option value="admin">System Admin</option>
-									</select>
-=======
 								Sign in to your account to continue
 							</p>
 						</div>
@@ -221,44 +186,10 @@ if ("loginRequired".equals(error)) {
 									</span>
 									<input type="email" class="form-control"
 										name="email" placeholder="you@company.com" required>
->>>>>>> main
 								</div>
 							</div>
 
 							<div class="mb-3">
-<<<<<<< HEAD
-								<label class="form-label fw-semibold small">Email Address</label>
-								<div class="input-group">
-									<span class="input-group-text bg-white">
-										<i class="bi bi-envelope text-secondary"></i>
-									</span>
-									<input type="email" class="form-control" id="email"
-										name="email" placeholder="you@company.com" value="demo@company.com" required>
-								</div>
-							</div>
-
-							<div class="mb-3">
-								<label class="form-label fw-semibold small">Password</label>
-								<div class="input-group">
-									<span class="input-group-text bg-white">
-										<i class="bi bi-lock text-secondary"></i>
-									</span>
-									<input type="password" class="form-control" id="password"
-										name="password" placeholder="Enter any password" value="demo123" required>
-									<span class="input-group-text password-eye">
-										<i class="bi bi-eye text-secondary"></i>
-									</span>
-								</div>
-							</div>
-
-							<div class="form-check mb-4">
-								<input class="form-check-input" type="checkbox" id="rememberMe">
-								<label class="form-check-label text-secondary" for="rememberMe">
-									Remember me
-								</label>
-							</div>
-
-=======
 								<label class="form-label fw-semibold small">Password</label>
 								<div class="input-group">
 									<span class="input-group-text bg-white">
@@ -279,7 +210,6 @@ if ("loginRequired".equals(error)) {
 								</label>
 							</div>
 
->>>>>>> main
 							<button type="submit"
 								class="btn btn-primary login-btn w-100 rounded-pill py-2 fw-semibold">
 								<i class="bi bi-box-arrow-in-right me-2"></i> Log In
@@ -323,28 +253,6 @@ if ("loginRequired".equals(error)) {
 	<!-- Bootstrap JS -->
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-	<script>
-		const loginForm = document.getElementById("frontendLoginForm");
-		const roleSelect = document.getElementById("demoRole");
-		const savedRole = localStorage.getItem("demoRole");
-
-		if (savedRole) roleSelect.value = savedRole;
-
-		loginForm.addEventListener("submit", function (event) {
-			event.preventDefault();
-			const role = roleSelect.value;
-			localStorage.setItem("demoRole", role);
-
-			window.location.href = role === "admin"
-				? "admin-user-list.jsp"
-				: "dashboard.jsp?role=" + encodeURIComponent(role);
-		});
-
-		document.querySelector(".password-eye").addEventListener("click", function () {
-			const password = document.getElementById("password");
-			password.type = password.type === "password" ? "text" : "password";
-		});
-	</script>
 
 </body>
 </html>
