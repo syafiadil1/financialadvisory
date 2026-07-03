@@ -48,7 +48,7 @@
 <%
 	UserModel currentUser = SessionHelper.getCurrentUser(request);
 
-	String role = request.getParameter("role");
+	String role = null;
 	if (currentUser != null && RoleHelper.isFinancialManager(currentUser)) {
 		role = "financialmanager";
 	} else if (currentUser != null && RoleHelper.isDepartmentManager(currentUser)) {

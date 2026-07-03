@@ -6,6 +6,9 @@ import util.ErrorUtil;
 
 import java.io.IOException;
 
+import helper.RoleHelper;
+import helper.SessionHelper;
+
 @WebFilter("/*")
 public class AuthFilter implements Filter {
 
@@ -38,24 +41,18 @@ public class AuthFilter implements Filter {
             return; // is needed because the same request is still running inside the filter, even though a redirect has already been sent to the browser.
         }
 
-        // LOGIN CHECK
-        if (session == null || session.getAttribute("user") == null) {
-
-            session = req.getSession(true);
-            session.setAttribute("error", ErrorUtil.format("AuthFilter.java", "doFilter", "Please login first"));
-
+     // LOGIN CHECK
+        if (!SessionHelper.isUserLoggedIn(req)) {
             res.sendRedirect(contextPath + "/login.jsp");
             return;
         }
 
-        // GET USER INFO
-        UserModel user = (UserModel) session.getAttribute("user");
-        int roleId = user.getRoleId();
+        UserModel user = SessionHelper.getCurrentUser(req);
 
         // ROLE PROTECTION
         
         // SYSTEM ADMIN ONLY PAGES
-        if (url.contains("/admin/") && roleId != 1) {
+        if (url.contains("/admin/") && !RoleHelper.isAdmin(user)) {
 
             session.setAttribute("error", ErrorUtil.format("AuthFilter.java", "doFilter", "Access denied"));
 
@@ -68,7 +65,7 @@ public class AuthFilter implements Filter {
         //}
 
         // FINANCIAL MANAGER ONLY PAGES
-        if (url.contains("financialmanager-") && roleId != 2) {
+        if (url.contains("financialmanager-") && !RoleHelper.isFinancialManager(user)) {
 
             session.setAttribute("error", "Access denied");
             
@@ -77,7 +74,7 @@ public class AuthFilter implements Filter {
         }
 
         // DEPARTMENT MANAGER ONLY PAGES
-        if (url.contains("/department/") && roleId != 3) {
+        if (url.contains("/department/") && !RoleHelper.isDepartmentManager(user)) {
 
             session.setAttribute("error", ErrorUtil.format("AuthFilter.java", "doFilter", "Access denied"));
 
@@ -86,7 +83,7 @@ public class AuthFilter implements Filter {
         }
 
         // STAFF ONLY PAGES
-        if (url.contains("staff-") && roleId != 4) {
+        if (url.contains("staff-") && !RoleHelper.isStaff(user)) {
 
             session.setAttribute("error", ErrorUtil.format("AuthFilter.java", "doFilter", "Access denied"));
 

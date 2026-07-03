@@ -17,6 +17,8 @@ public class SessionHelper {
 		return getCurrentUser(request) != null;
 	}
 	
+	
+	// no need to use, redudant with isUserAdmin in RoleHelper
 	public static boolean isUserAdmin(HttpServletRequest request) {
 		UserModel user = getCurrentUser(request);
 		return user != null && user.getRoleId() == 1; // Assuming roleId 1 is for admin

@@ -49,19 +49,19 @@ public class LoginController extends HttpServlet {
 
             HttpSession session = request.getSession();
             session.setAttribute("user", user); // only save that user information id, name rold id, etc
-            session.setMaxInactiveInterval(60 * 30); // 30 minutes
+            //session.setMaxInactiveInterval(60 * 30); // 30 minutes
 
             
             
-            session.setAttribute("isAdmin", RoleHelper.isAdmin(user));
-            session.setAttribute("isDepartmentManager", RoleHelper.isDepartmentManager(user));
-            session.setAttribute("isFinancialManager", RoleHelper.isFinancialManager(user));
-            session.setAttribute("isStaff", RoleHelper.isStaff(user));
+            //session.setAttribute("isAdmin", RoleHelper.isAdmin(user));
+            //session.setAttribute("isDepartmentManager", RoleHelper.isDepartmentManager(user));
+            //session.setAttribute("isFinancialManager", RoleHelper.isFinancialManager(user));
+            //session.setAttribute("isStaff", RoleHelper.isStaff(user));
 
-            int roleId = user.getRoleId(); // to send the user login according to it role page
+            //int roleId = user.getRoleId(); // to send the user login according to it role page
 
             // System Admin page because only admin not sharing the same dashboard with other role for now
-            if (roleId == 1) {
+            if (RoleHelper.isAdmin(user)) {
 
             	response.sendRedirect("UserController?action=list");
                 return;

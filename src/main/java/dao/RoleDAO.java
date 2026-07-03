@@ -18,7 +18,7 @@ public class RoleDAO {
 	private static ResultSet rs = null;
 	private static String sql = null;
 	
-	public static List<RoleModel> getAllRoles() {
+	public static List<RoleModel> getAllRoles() throws SQLException{
 		
         List<RoleModel> list = new ArrayList<RoleModel>();
 
@@ -33,7 +33,7 @@ public class RoleDAO {
             	RoleModel r = new RoleModel();
                 r.setRoleId(rs.getInt("roleid"));
                 r.setName(rs.getString("name"));
-                //r.setDescription(rs.getString("description"));
+                r.setDescription(rs.getString("description"));
                 list.add(r);
             }
 
@@ -44,6 +44,31 @@ public class RoleDAO {
         return list;
     }
 	
-    // this is for dashboard, that will get the user name and role
+    public static RoleModel getRoleById(int id) throws SQLException {
+    	
+    	RoleModel r = null;
+    	try {
+    		conn = DBConnection.getConnection();
+    		sql = "SELECT * FROM ROLE WHERE roleId = ?";
+    		ps = conn.prepareStatement(sql);
+    		ps.setInt(1, id);
+    		rs = ps.executeQuery();
+    		
+    		if(rs.next()) {
+    			r = new RoleModel();
+                r.setRoleId(rs.getInt("ROLEID"));
+                r.setName(rs.getString("NAME"));
+                r.setDescription(rs.getString("DESCRIPTION"));
+    		}
+    		
+    		ps.close();
+    		rs.close();
+    		 
+    	} catch(SQLException e) {
+            e.printStackTrace();
+        }
+    	
+    	return r;
+    }
 
 }

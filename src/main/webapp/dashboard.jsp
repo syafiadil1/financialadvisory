@@ -1,25 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
-<%
-	String role = request.getParameter("role");
-	if (role == null || role.trim().isEmpty()) role = "staff";
-
-	int roleId = 1;
-	String roleName = "Staff";
-	String subtitle = "View dashboard, manage transactions, and initiate AI advisory.";
-
-	if ("departmentmanager".equals(role)) {
-		roleId = 3;
-		roleName = "Department Manager";
-		subtitle = "Review department transactions, monitor budget usage, and view department analytics.";
-	} else if ("financialmanager".equals(role)) {
-		roleId = 2;
-		roleName = "Financial Manager";
-		subtitle = "View dashboard, analyze company performance, and generate company statements.";
-	} else {
-		role = "staff";
-	}
-	String dashboardTitle = roleName + " Dashboard";
-%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,18 +19,17 @@
 	<div class="container-fluid">
 		<div class="row min-vh-100">
 			<jsp:include page="/includes/sidebar.jsp">
-				<jsp:param name="sidebarRole" value="<%= role %>" />
 				<jsp:param name="activeMenu" value="dashboard" />
 			</jsp:include>
 
 			<main class="col-12 col-lg-10 p-4">
 				<jsp:include page="/includes/page-header.jsp">
-					<jsp:param name="pageTitle" value="<%= dashboardTitle %>" />
-					<jsp:param name="pageSubtitle" value="<%= subtitle %>" />
-					<jsp:param name="pageRoleName" value="<%= roleName %>" />
+					<jsp:param name="pageTitle" value="${dashboardTitle}"  />
+					<jsp:param name="pageSubtitle" value="${subtitle}" />
+					<jsp:param name="pageRoleName" value="${role.name}" />
 				</jsp:include>
 
-				<% if (roleId == 1) { %>
+				<c:if test="${user.roleId == 1} ">
 				<section class="row g-4 mb-4">
 					<div class="col-md-6 col-xl-3">
 						<div class="card border-0 shadow-sm rounded-4 h-100">
@@ -181,14 +160,14 @@
 								<p class="text-secondary">
 									Your company currently has a positive cashflow. Consider reviewing fixed costs to improve future profitability.
 								</p>
-								<a href="aiadvisory.jsp?role=<%= role %>" class="btn btn-primary w-100 rounded-pill">Open Advisory Chatbot</a>
+								<a href="aiadvisory.jsp?role=${user.roleId}" class="btn btn-primary w-100 rounded-pill">Open Advisory Chatbot</a>
 							</div>
 						</div>
 					</div>
 				</section>
-				<% } %>
+				</c:if>
 
-				<% if (roleId == 3) { %>
+				<c:if test="${user.roleId == 3}">
 				<section class="row g-4 mb-4">
 					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Department Budget</p><h3 class="fw-bold mb-2">RM 50,000.00</h3><small class="text-secondary">Monthly budget allocation</small></div></div></div>
 					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Used Budget</p><h3 class="fw-bold mb-2">RM 31,250.00</h3><small class="text-danger">62.5% used this month</small></div></div></div>
@@ -252,9 +231,9 @@
 						</div>
 					</div>
 				</section>
-				<% } %>
+				</c:if>
 
-				<% if (roleId == 2) { %>
+				<c:if test="${user.roleId == 2}">
 				<section class="row g-4 mb-4">
 					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Total Revenue</p><h3 class="fw-bold mb-2">RM 67,676,767.00</h3><small class="text-success">Company income summary</small></div></div></div>
 					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Total Expenses</p><h3 class="fw-bold mb-2">RM 676,767.00</h3><small class="text-danger">Approved expenses</small></div></div></div>
@@ -355,7 +334,7 @@
 						</div>
 					</div>
 				</section>
-				<% } %>
+				</c:if>
 			</main>
 		</div>
 	</div>
