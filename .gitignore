@@ -17,3 +17,32 @@ scripts/vscode-tomcat.ps1
 /scripts
 .vscode/
 .metadata/
+/bin/
+# Eclipse workspace
+.settings/
+
+# Optional Eclipse project files
+# .project
+# .classpath
+
+# Build output
+bin/
+build/
+target/
+out/
+*.class
+
+# Server
+Servers/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+config.properties
+db.properties
