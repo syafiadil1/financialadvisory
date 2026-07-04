@@ -1,11 +1,33 @@
-.*
-!/.gitignore
-/build/
-/.classpath/
-/.settings/
+# Eclipse workspace
+.settings/
+
+# Optional Eclipse project files
+.project/
+.classpath/
+.vscode/
+.metadata/
+
+# Build output
+bin/
+build/
+target/
+out/
+*.class
+scripts/
+
+# Server
+Servers/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+config.properties
+db.properties
+.classpath
 .project
-/util/DBConnection.a\java
-.settings/org.eclipse.wst.common.project.facet.core.xml
-.classpath
-.classpath
-.settings/org.eclipse.wst.common.project.facet.core.xml

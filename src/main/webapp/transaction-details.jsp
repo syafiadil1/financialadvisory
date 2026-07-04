@@ -12,6 +12,8 @@
 	boolean isCreate = "create".equals(action) || "create-details".equals(action);
 	boolean isEdit = "edit".equals(action);%>
 
+<c:set var="disabledAttr" value="${isEditable ? '' : 'disabled'}" />
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -96,7 +98,6 @@
 							<form id="transactionForm" action="TransactionController" method="post" enctype="multipart/form-data">
 								<input type="hidden" name="transactionId" value="${transaction != null ? transaction.getTransactionId() : null}">
 								<div id="pendingAttachmentInputs" class="d-none"></div>
-								<fieldset <c:if test="${!isEditable}">disabled</c:if>>
 							
 								<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-3 mb-4 border-bottom">
 									<h5 class="fw-bold mb-0">
@@ -110,17 +111,20 @@
 									</c:if>
 								</div>
 
+								<!-- mainform -->
 								<div class="row g-3 mb-4">
+								
+									<!--  1st row -->
 									<div class="col-md-6">
 										<label class="form-label">
 											Transaction Title <span class="text-danger">*</span>
 										</label> 
-										<input type="text" class="form-control rounded-3" name="title" required
+										<input type="text" class="form-control rounded-3" name="title" required ${disabledAttr}
 											value="${transaction != null ? transaction.name : ''}" placeholder="Example: Office Rent">
 									</div>
 									<div class="col-md-3">
 										<label class="form-label">Type</label>
-										<select class="form-select rounded-3" name="transactionType">
+										<select class="form-select rounded-3" name="transactionType" ${disabledAttr}>
 											<option value="income" <c:if test="${transaction != null && fn:toLowerCase(transaction.transactionType) eq 'income'}">selected</c:if>>Income</option>
 											<option value="expense" <c:if test="${transaction != null && fn:toLowerCase(transaction.transactionType) eq 'expense'}">selected</c:if>>Expense</option>
 										</select>
@@ -129,7 +133,7 @@
 										<label class="form-label">
 											Category <span class="text-danger">*</span>
 										</label>
-										<select class="form-select rounded-3" name="categoryId" required>
+										<select class="form-select rounded-3" name="categoryId" required ${disabledAttr}>
 												<option value="">Select Category</option>
 												<c:forEach var="category" items="${categories_dropdown}">
 													<option value="${category.categoryId}" ${transaction != null && transaction.categoryId == category.categoryId ? 'selected' : ''}>
@@ -138,40 +142,64 @@
 												</c:forEach>
 										</select>
 									</div>
-									<div class="col-md-4">
+									
+									<!-- 2nd row -->
+									<div class="col-md-3">
+                                        <label class="form-label">Currency</label>
+                                        <select class="form-select rounded-3" name="currency" ${disabledAttr}>
+                                        	<option value="" <c:if test="${transaction != null && (transaction.currency == null || transaction.currency == '')}">selected</c:if>>Select Currency</option>
+                                            <option value="MYR" <c:if test="${transaction != null && fn:toUpperCase(transaction.currency) eq 'MYR'}">selected</c:if>>MYR (Malaysian Ringgit)</option>
+                                            <option value="USD" <c:if test="${transaction != null && fn:toUpperCase(transaction.currency) eq 'USD'}">selected</c:if>>USD (United States Dollar)</option>
+                                            <option value="EUR" <c:if test="${transaction != null && fn:toUpperCase(transaction.currency) eq 'EUR'}">selected</c:if>>EUR (Euro)</option>
+                                            <option value="GBP" <c:if test="${transaction != null && fn:toUpperCase(transaction.currency) eq 'GBP'}">selected</c:if>>GBP (British Pound)</option>
+                                            <option value="JPY" <c:if test="${transaction != null && fn:toUpperCase(transaction.currency) eq 'JPY'}">selected</c:if>>JPY (Japanese Yen)</option>
+                                            <!-- Add more currencies as needed -->
+                                        </select>
+                                    </div>
+									<div class="col-md-3">
 										<label class="form-label">Amount (RM)</label>
-										<input type="number" step="0.01" class="form-control rounded-3"
+										<input type="number" step="0.01" class="form-control rounded-3" ${disabledAttr}
 											name="amount" value="${transaction != null ? transaction.totalAmount : ''}" placeholder="0.00">
 									</div>
-									<div class="col-md-4">
+									<div class="col-md-3">
 										<label class="form-label">
 											Transaction Date <span class="text-danger">*</span>
 										</label>
-										<input type="date" class="form-control rounded-3" required
+										<input type="date" class="form-control rounded-3" required ${disabledAttr}
 											name="transactionDate" value="${transaction != null ? transaction.dateTransaction : ''}" placeholder="Select transaction date">
 									</div>
-									<div class="col-md-4">
+									<div class="col-md-3">
 										<label class="form-label">Payment Method</label>
-										<input type="text" class="form-control rounded-3"
+										<input type="text" class="form-control rounded-3" ${disabledAttr}
 											name="paymentMethod" value="${transaction != null ? transaction.paymentMethod : ''}" placeholder="e.g. Bank Transfer, Credit Card, Cash">
 									</div>
+									
+									<!-- 3rd row -->
 									<div class="col-md-6">
 										<label class="form-label">Invoice / Reference Number</label>
-										<input type="text" class="form-control rounded-3" name="invoiceNo"
+										<input type="text" class="form-control rounded-3" name="invoiceNo" ${disabledAttr}
 											value="${transaction != null ? transaction.invoiceNo : ''}" placeholder="Invoice or payment reference">
 									</div>
-									<div class="col-md-6">
+									<div class="col-md-3">
+										<label class="form-label">Payer Name</label>
+										<input type="text" class="form-control rounded-3" name="payer" ${disabledAttr}
+											value="${transaction != null ? transaction.payer : ''}" placeholder="Payer or company name">
+									</div>
+									<div class="col-md-3">
 										<label class="form-label">Vendor / Payee Name</label>
-										<input type="text" class="form-control rounded-3" name="payee"
+										<input type="text" class="form-control rounded-3" name="payee" ${disabledAttr}
 											value="${transaction != null ? transaction.payee : ''}" placeholder="Vendor, customer, or payee">
 									</div>
+									
+									<!-- 4th row -->
 									<div class="col-12">
 										<label class="form-label">Reason / Description</label>
-										<textarea class="form-control rounded-3" rows="4" name="description"
+										<textarea class="form-control rounded-3" rows="4" name="description" ${disabledAttr}
 											placeholder="Explain transaction purpose">${transaction != null ? transaction.description : ''}</textarea>
 									</div>
 								</div>
 
+								<!--  itemlist -->
 								<div class="border rounded-3 p-3 mb-4">
 									<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
 										<div>
@@ -195,12 +223,12 @@
 										<c:forEach var="item" items="${transaction_items}">
                                             <div class="line-item-grid line-item-row">
                                                 <input type="hidden" name="itemId" value="${item.transactionItemId}">
-                                                <input type="text" class="form-control rounded-3" name="itemName" value="${item.name != null ? item.name : ''}">
-                                                <input type="text" class="form-control rounded-3" name="itemDescription" value="${item.description != null ? item.description : ''}">
-                                                <input type="number" class="form-control rounded-3 item-qty" name="itemQuantity" value="${item.quantity}" min="0" step="1">
-                                                <input type="number" class="form-control rounded-3 item-price" name="itemUnitPrice" value="${item.unitPrice}" min="0" step="0.01">
-                                                <input type="number" class="form-control rounded-3 item-total fw-bold" name="itemTotal" value="${item.quantity * item.unitPrice}" min="0" step="0.01">
-                                                <button type="button" class="btn btn-outline-danger rounded-circle remove-row" aria-label="Delete item">
+                                                <input type="text" class="form-control rounded-3" name="itemName" value="${item.name != null ? item.name : ''}" ${disabledAttr}>
+                                                <input type="text" class="form-control rounded-3" name="itemDescription" value="${item.description != null ? item.description : ''}" ${disabledAttr}>
+                                                <input type="number" class="form-control rounded-3 item-qty" name="itemQuantity" value="${item.quantity}" min="0" step="1" ${disabledAttr}>
+                                                <input type="number" class="form-control rounded-3 item-price" name="itemUnitPrice" value="${item.unitPrice}" min="0" step="0.01" ${disabledAttr}>
+                                                <input type="number" class="form-control rounded-3 item-total fw-bold" name="itemTotal" value="${item.quantity * item.unitPrice}" min="0" step="0.01" ${disabledAttr}>
+                                                <button type="button" class="btn btn-outline-danger rounded-circle remove-row" aria-label="Delete item" ${disabledAttr}>
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
@@ -235,12 +263,14 @@
 								               step="0.05"
 								               name="totalAmount"
 								               value="<c:out value='${transaction != null ? transaction.totalAmount : 0.00}'/>"
-								               style="max-width: 160px;">
+								               style="max-width: 160px;"
+								               ${disabledAttr}>
 								    </div>
 								
 								</div>
 								</div>
 
+								<!--  attachmentlist -->
 								<div class="border rounded-3 p-3 mb-4">
 									<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
 										<h6 class="fw-bold mb-0">
@@ -265,13 +295,13 @@
 													<span class="fw-semibold">${attachment.name}</span>
 												</div>
 												<span class="text-secondary small">${ empty attachment.description ? 'No description available' : attachment.description }</span>
-												<a class="btn btn-outline-primary rounded-circle"
+												<a class="btn btn-outline-primary rounded-circle enabled"
 													href="AttachmentController?action=download&attachmentId=${attachment.attachmentId}"
 													aria-label="Download attachment" title="Download attachment">
 													<i class="bi bi-download"></i>
 												</a>
 												<c:if test="${isEditable}">
-													<button type="button" class="btn btn-outline-danger rounded-circle remove-attachment" aria-label="Delete attachment" title="Delete attachment">
+													<button type="button" class="btn btn-outline-danger rounded-circle remove-attachment" aria-label="Delete attachment" title="Delete attachment" ${disabledAttr}>
 														<i class="bi bi-trash"></i>
 													</button>
 												</c:if>
@@ -305,7 +335,7 @@
 									</c:if>
 								</c:if>
 								</div>
-									</fieldset>
+								
 								<div class="d-flex flex-wrap justify-content-end gap-2">
 								<c:if test="${ !isEditable && isApprover}">
                                     <button class="btn btn-danger rounded-pill px-4" type="submit" name="action" value="reject">

@@ -13,7 +13,7 @@ import java.time.Duration;
 public class GeminiService {
 
     private static final String API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s";
-    private static final String DEFAULT_MODEL = "gemini-1.5-flash";
+    private static final String DEFAULT_MODEL = "gemini-3.1-flash-lite";
     private static final int TIMEOUT_SECONDS = 30;
 
     private final HttpClient httpClient;
@@ -60,6 +60,8 @@ public class GeminiService {
             if (text == null || text.trim().isEmpty()) {
                 return "Gemini returned an empty response. Please try again with a more specific financial question.";
             }
+            
+            System.out.println("Gemini response: " + text);
 
             return text.trim();
         } catch (Exception e) {
@@ -82,9 +84,10 @@ public class GeminiService {
                     }
                   ],
                   "generationConfig": {
-                    "temperature": 0.3,
-                    "topP": 0.9,
-                    "maxOutputTokens": 900
+                    "maxOutputTokens": 256,
+                    "thinkingConfig": {
+                      "thinkingLevel": "MINIMAL"
+					}
                   }
                 }
                 """.formatted(escapeJson(prompt));

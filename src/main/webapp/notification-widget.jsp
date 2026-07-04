@@ -110,7 +110,7 @@
 				</div>
 			</a>
 
-			<a href="aiadvisory.jsp?role=departmentmanager"
+			<a href="AIAdvisoryController?role=departmentmanager"
 				class="list-group-item list-group-item-action p-3 notification-role-item"
 				data-roles="departmentmanager">
 				<div class="d-flex gap-3">
@@ -161,7 +161,7 @@
 				</div>
 			</a>
 
-			<a href="aiadvisory.jsp?role=staff"
+			<a href="AIAdvisoryController?role=staff"
 				class="list-group-item list-group-item-action p-3 notification-role-item"
 				data-roles="staff">
 				<div class="d-flex gap-3">
@@ -212,7 +212,7 @@
 				</div>
 			</a>
 
-			<a href="aiadvisory.jsp?role=financialmanager"
+			<a href="AIAdvisoryController?role=financialmanager"
 				class="list-group-item list-group-item-action p-3 notification-role-item"
 				data-roles="financialmanager">
 				<div class="d-flex gap-3">

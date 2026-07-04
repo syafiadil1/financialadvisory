@@ -175,7 +175,7 @@ if ("loginRequired".equals(error)) {
 							</p>
 						</div>
 
-						<form action="LoginController" method="post">
+						<form action="<%= request.getContextPath() %>/LoginController" method="post">
 
 							<div class="mb-3">
 								<label class="form-label fw-semibold small">Email Address</label>
