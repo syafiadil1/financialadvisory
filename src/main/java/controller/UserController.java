@@ -200,6 +200,11 @@ public class UserController extends HttpServlet {
         
         UserDAO.updateUser(userData);
         String source = request.getParameter("source");
+        
+        UserModel temp = UserDAO.getUserById(userData.getUserId());
+        HttpSession session = request.getSession();
+        session.setAttribute("user", temp);
+        
         if ("profile".equals(source)) {
         	response.sendRedirect(request.getContextPath() + "/UserController?action=showUserProfile");
         }else

@@ -90,11 +90,13 @@
                    href="${contextPath}/CategoryController?action=list">
                     <i class="bi bi-tags me-2"></i> Category
                 </a>
-
-                <a class="nav-link text-white rounded-3 ${activeMenu == 'history' ? 'active' : ''}"
-                   style="${activeMenu == 'history' ? 'background-color: '.concat(sidebarActiveColor).concat(';') : ''}"
-                   href="${contextPath}/departmentmanager-history.jsp">
-                    <i class="bi bi-receipt me-2"></i> History
+            </c:if>
+            
+            <c:if test="${sessionScope.user.roleId == 2">
+            	<a class="nav-link text-white rounded-3 ${activeMenu == 'categories' ? 'active' : ''}"
+                   style="${activeMenu == 'budget' ? 'background-color: '.concat(sidebarActiveColor).concat(';') : ''}"
+                   href="${contextPath}/BudgetController?action=list">
+                    <i class="bi bi-tags me-2"></i> Category
                 </a>
             </c:if>
 

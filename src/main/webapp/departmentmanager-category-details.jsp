@@ -73,28 +73,14 @@
                                        value="${category.name}"
                                        required>
                             </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Parent Category</label>
-                                <select class="form-select rounded-3" name="parentCategoryId">
-                                    <option value="0" selected>None</option>
-
-                                    <c:forEach var="parent" items="${parentCategories}">
-                                        <option value="${parent.categoryId}">
-                                            ${parent.name}
-                                        </option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 d-flex align-items-center mt-4">
+                            <div class="form-check form-switch mt-3">
                                 <div class="form-check form-switch pt-2">
                                     <input class="form-check-input"
                                            type="checkbox"
                                            role="switch"
                                            name="isPublic"
                                            id="isPublic"
-                                           <c:if test="${category.generic}">checked</c:if>>
+                                           <c:if test="${category.generic}">checked</c:if> disabled>
 
                                     <label class="form-check-label ms-2" for="isPublic">
                                         Public Category
