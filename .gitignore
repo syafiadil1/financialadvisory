@@ -29,3 +29,5 @@ Thumbs.db
 .env
 config.properties
 db.properties
+.classpath
+.project
