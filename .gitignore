@@ -1,29 +1,11 @@
-.*
-.gitignore
-!/.vscode/*.json
-/build/
-/.classpath/
-/.settings/
-.project
-/util/DBConnection.java
-.settings/org.eclipse.wst.common.project.facet.core.xml
-.classpath
-.classpath
-.settings/org.eclipse.wst.common.project.facet.core.xml
-.vscode/
-README.md
-.settings/org.eclipse.jdt.core.prefs
-scripts/vscode-tomcat.ps1
-/scripts
-.vscode/
-.metadata/
-/bin/
 # Eclipse workspace
 .settings/
 
 # Optional Eclipse project files
-# .project
-# .classpath
+.project/
+.classpath/
+.vscode/
+.metadata/
 
 # Build output
 bin/
@@ -31,6 +13,7 @@ build/
 target/
 out/
 *.class
+scripts/
 
 # Server
 Servers/
