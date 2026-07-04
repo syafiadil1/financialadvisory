@@ -87,7 +87,7 @@
             <c:if test="${sessionScope.user.roleId == 2 || sessionScope.user.roleId == 3}">
                 <a class="nav-link text-white rounded-3 ${activeMenu == 'categories' ? 'active' : ''}"
                    style="${activeMenu == 'categories' ? 'background-color: '.concat(sidebarActiveColor).concat(';') : ''}"
-                   href="${contextPath}/departmentmanager-category-list.jsp">
+                   href="${contextPath}/CategoryController?action=list">
                     <i class="bi bi-tags me-2"></i> Category
                 </a>
 

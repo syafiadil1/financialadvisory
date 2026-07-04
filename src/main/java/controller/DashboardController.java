@@ -70,7 +70,7 @@ public class DashboardController extends HttpServlet {
 
 		switch (role.getRoleId()) {
 		    case 1:
-		        subtitle = "Manage users, departments and system configuration.";
+		        subtitle = "View dashboard, manage transactions, and initiate AI advisory.";
 		        break;
 		    case 2:
 		        subtitle = "View dashboard, analyze company performance, and generate company statements.";
@@ -79,7 +79,7 @@ public class DashboardController extends HttpServlet {
 		        subtitle = "Review department transactions, monitor budget usage, and view department analytics.";
 		        break;
 		    default:
-		        subtitle = "View dashboard, manage transactions, and initiate AI advisory.";
+		        subtitle = "Manage users, departments and system configuration.";
 		}
 
 		request.setAttribute("subtitle", subtitle);

@@ -60,38 +60,70 @@
 
 				<section class="card border-0 shadow-sm rounded-4">
 					<div class="card-body p-4">
-						<div class="row g-3 mb-3">
-							<div class="col-md-5">
-								<label class="form-label">Search User</label>
-								<input type="text" class="form-control rounded-3"
-									placeholder="Search by name or email">
-							</div>
-							<div class="col-md-3">
-								<label class="form-label">Filter Role</label>
-								<select class="form-select rounded-3">
-									<option selected>All Roles</option>
-									<option>System Admin</option>
-									<option>Financial Manager</option>
-									<option>Department Manager</option>
-									<option>Staff</option>
-								</select>
-							</div>
-							<div class="col-md-3">
-								<label class="form-label">Filter Department</label>
-								<select class="form-select rounded-3">
-									<option selected>All Departments</option>
-									<option>Finance</option>
-									<option>Sales</option>
-									<option>Operations</option>
-									<option>Information Technology</option>
-								</select>
-							</div>
-							<div class="col-md-1 d-flex align-items-end">
-								<button class="btn btn-danger w-100 rounded-pill">
-									<i class="bi bi-search"></i>
-								</button>
-							</div>
-						</div>
+					
+						<form action="${pageContext.request.contextPath}/UserController" method="get">
+						
+						    <input type="hidden" name="action" value="list">
+						
+						    <div class="row g-3 mb-3">
+						
+						        <!-- Search -->
+						        <div class="col-md-5">
+						            <label class="form-label">Search User</label>
+						            <input type="text"
+						                   class="form-control rounded-3"
+						                   name="keyword"
+						                   value="${param.keyword}"
+						                   placeholder="Search by name or email">
+						        </div>
+						
+						        <!-- Role -->
+						        <div class="col-md-3">
+						            <label class="form-label">Filter Role</label>
+						
+						            <select class="form-select rounded-3" name="roleId">
+						
+						                <option value="">All Roles</option>
+						
+						                <c:forEach var="role" items="${roles}">
+						                    <option value="${role.roleId}"
+						                        ${param.roleId == role.roleId.toString() ? 'selected' : ''}>
+						                        ${role.name}
+						                    </option>
+						                </c:forEach>
+						
+						            </select>
+						        </div>
+						
+						        <!-- Department -->
+						        <div class="col-md-3">
+						            <label class="form-label">Filter Department</label>
+						
+						            <select class="form-select rounded-3" name="departmentId">
+						
+						                <option value="">All Departments</option>
+						
+						                <c:forEach var="dept" items="${depts}">
+						                    <option value="${dept.departmentId}"
+						                        ${param.departmentId == dept.departmentId.toString() ? 'selected' : ''}>
+						                        ${dept.name}
+						                    </option>
+						                </c:forEach>
+						
+						            </select>
+						        </div>
+						
+						        <!-- Search Button -->
+						        <div class="col-md-1 d-flex align-items-end">
+						            <button type="submit"
+						                    class="btn btn-danger w-100 rounded-pill">
+						                <i class="bi bi-search"></i>
+						            </button>
+						        </div>
+						
+						    </div>
+						
+						</form>
 
 						<div class="d-flex justify-content-end mb-4">
 							<a class="btn btn-danger rounded-pill px-4" href="UserController?action=create">
@@ -180,7 +212,6 @@
 		</div>
 	</div>
 
-	<jsp:include page="/notification-widget.jsp" />
 	<jsp:include page="/chatbot-widget.jsp" />
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

@@ -71,35 +71,33 @@
 				    <section class="card border-0 shadow-sm rounded-4">
 				        <div class="card-body p-4">
 				
-				            <!-- SEARCH (UI only for now) -->
-				            <div class="row g-3 mb-3">
-				
-				                <div class="col-md-5">
-				                    <label class="form-label">Search Department</label>
-				                    <input type="text" class="form-control" placeholder="Search...">
-				                </div>
-				
-				                <div class="col-md-3">
-				                    <label class="form-label">Filter Manager</label>
-				                    <select class="form-select">
-				                        <option>All Managers</option>
-				                    </select>
-				                </div>
-				
-				                <div class="col-md-3">
-				                    <label class="form-label">Filter Status</label>
-				                    <select class="form-select">
-				                        <option>All Status</option>
-				                    </select>
-				                </div>
-				
-				                <div class="col-md-1 d-flex align-items-end">
-				                    <button class="btn btn-danger w-100">
-				                        <i class="bi bi-search"></i>
-				                    </button>
-				                </div>
-				
-				            </div>
+							<!-- SEARCH (UI only for now) -->
+							<form action="${pageContext.request.contextPath}/DepartmentController" method="get">
+							
+							    <input type="hidden" name="action" value="list">
+							
+							    <div class="row g-3 mb-3">
+							
+							        <div class="col-md-11">
+							            <label class="form-label">Search Department</label>
+							
+							            <input type="text"
+							                   class="form-control rounded-3"
+							                   name="keyword"
+							                   value="${param.keyword}"
+							                   placeholder="Search department name">
+							        </div>
+							
+							        <div class="col-md-1 d-flex align-items-end">
+							            <button type="submit"
+							                    class="btn btn-danger w-100 rounded-pill">
+							                <i class="bi bi-search"></i>
+							            </button>
+							        </div>
+							
+							    </div>
+							
+							</form>
 				
 				            <!-- CREATE BUTTON -->
 				            <div class="d-flex justify-content-end mb-3">
@@ -161,7 +159,6 @@
 			</div>
 		</div>
 	
-		<jsp:include page="/notification-widget.jsp" />
 		<jsp:include page="/chatbot-widget.jsp" />
 	
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

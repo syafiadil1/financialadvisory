@@ -124,6 +124,75 @@ public class UserDAO {
         return list;
     }
     
+    //  filtering user
+    public static List<UserModel> filterUsers(String keyword, Integer roleId, Integer departmentId)
+            throws SQLException {
+
+        List<UserModel> users = new ArrayList<>();
+
+        try {
+            conn = DBConnection.getConnection();
+
+            sql = "SELECT USERID, NAME, EMAIL, PASSWORD, ROLEID, DEPARTMENTID "
+                + "FROM USERS WHERE ROLEID<> 1";
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                sql += " AND (LOWER(NAME) LIKE ? OR LOWER(EMAIL) LIKE ?)";
+            }
+
+            if (roleId != null) {
+                sql += " AND ROLEID = ?";
+            }
+
+            if (departmentId != null) {
+                sql += " AND DEPARTMENTID = ?";
+            }
+
+            sql += " ORDER BY USERID";
+
+            ps = conn.prepareStatement(sql);
+
+            int index = 1;
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String searchKeyword = "%" + keyword.toLowerCase() + "%";
+                ps.setString(index++, searchKeyword);
+                ps.setString(index++, searchKeyword);
+            }
+
+            if (roleId != null) {
+                ps.setInt(index++, roleId);
+            }
+
+            if (departmentId != null) {
+                ps.setInt(index++, departmentId);
+            }
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                UserModel user = new UserModel();
+
+                user.setUserId(rs.getInt("USERID"));
+                user.setName(rs.getString("NAME"));
+                user.setEmail(rs.getString("EMAIL"));
+                user.setPassword(rs.getString("PASSWORD"));
+                user.setRoleId(rs.getInt("ROLEID"));
+                user.setDepartmentId(rs.getInt("DEPARTMENTID"));
+
+                users.add(user);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return users;
+    }
+    
     // add new user
     public static void addUser(UserModel data) throws SQLException{
     	try {
@@ -157,7 +226,12 @@ public class UserDAO {
     	    ps.setString(2, data.getEmail());
     	    ps.setString(3, data.getPassword());
     	    ps.setInt(4, data.getRoleId());
-    	    ps.setInt(5, data.getDepartmentId());
+    	    if (data.getDepartmentId() == 0) {
+    	        ps.setNull(5, java.sql.Types.INTEGER);
+    	    } else {
+    	        ps.setInt(5, data.getDepartmentId());
+    	    }
+    	    //ps.setInt(5, data.getDepartmentId());
     	    ps.setInt(6, data.getUserId());
     		
     	    rs = ps.executeQuery();

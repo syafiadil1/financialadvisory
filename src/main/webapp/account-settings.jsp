@@ -51,14 +51,14 @@
         <c:set var="department" value="Sales"/>
     </c:when>
 
-    <c:otherwise>
+    <c:when test="${roleId == 4}">
         <c:set var="roleName" value="Staff"/>
         <c:set var="sidebarColor" value="#0D6EFD"/>
         <c:set var="profileSubtitle" value="Department Staff"/>
         <c:set var="avatarIcon" value="bi-person"/>
         <c:set var="buttonClass" value="btn-primary"/>
         <c:set var="department" value="Operations"/>
-    </c:otherwise>
+    </c:when>
 
 </c:choose>
 
@@ -102,7 +102,7 @@
 
     <input type="hidden" name="action" value="updateProfile">
     <input type="hidden" name="userId" value="${user.userId}">
-
+	<input type="hidden" name="source" value="profile">
     <!-- PROFILE DETAILS -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body p-4">
@@ -125,37 +125,78 @@
                            value="${user.email}">
                 </div>
 
+				<div class="col-md-6">
+				    <label class="form-label">Role</label>
+				
+				    <c:choose>
+				        <c:when test="${user.roleId == 1}">
+				
+				            <input type="hidden" name="roleId" value="1">
+				
+				            <select class="form-select rounded-3" disabled>
+				                <option selected>System Admin</option>
+				            </select>
+				
+				        </c:when>
+
+				        <c:otherwise>
+				
+				            <select class="form-select rounded-3" name="roleId">
+				
+				                <c:forEach var="role" items="${roles}">
+				
+				                    <option value="${role.roleId}"
+				                        ${user.roleId == role.roleId ? 'selected' : ''}>
+				
+				                        ${role.name}
+				
+				                    </option>
+				
+				                </c:forEach>
+				
+				            </select>
+				
+				        </c:otherwise>
+				
+				    </c:choose>
+				
+				</div>
+
                 <div class="col-md-6">
-                    <label class="form-label">Role</label>
-                    <select class="form-select rounded-3" name="roleId">
+				    <label class="form-label">Department</label>
+				
+				    <c:choose>
+				        <c:when test="${user.roleId == 1}">
+				
+				            <input type="hidden" name="departmentId" value="0">
+				
+				            <select class="form-select rounded-3" disabled>
+				                <option selected>Not Applicable</option>
+				            </select>
+				
+				        </c:when>
 
-                        <c:forEach var="role" items="${roles}">
-                        	<option value="${role.roleId}"
-				                ${user.roleId == role.roleId ? 'selected' : ''}>
+				        <c:otherwise>
+				            <select class="form-select rounded-3" name="departmentId">
 				
-				                ${role.name}
+				                <c:forEach var="dept" items="${depts}">
 				
-				            </option>
-                       </c:forEach>
-
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Department</label>
+				                    <option value="${dept.departmentId}"
+				                        ${user.departmentId == dept.departmentId ? 'selected' : ''}>
 				
-				    <select class="form-select rounded-3" name="departmentId">
+				                        ${dept.name}
 				
-				        <c:forEach var="dept" items="${depts}">
+				                    </option>
 				
-				            <option value="${dept.departmentId}"
-				                ${user.departmentId == dept.departmentId ? 'selected' : ''}>
+				                </c:forEach>
 				
-				                ${dept.name}
-				            </option>
-				        </c:forEach>
-				    </select>
-                </div>
+				            </select>
+				
+				        </c:otherwise>
+				
+				    </c:choose>
+				
+				</div>
 
             </div>
 

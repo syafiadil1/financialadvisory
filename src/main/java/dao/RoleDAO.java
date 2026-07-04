@@ -25,7 +25,7 @@ public class RoleDAO {
         try {
         	
         	conn = DBConnection.getConnection();
-        	sql = "SELECT roleid, name FROM role";
+        	sql = "SELECT roleid, name, description FROM role";
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
 

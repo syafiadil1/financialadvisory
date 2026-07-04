@@ -68,9 +68,19 @@ public class DepartmentController extends HttpServlet {
 	}
 	
 	private void listDepartment(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-		List<DepartmentModel> deptList= DepartmentDAO.getAllDept();
-        request.setAttribute("depts", deptList);
-        request.getRequestDispatcher("admin/admin-department-list.jsp").forward(request, response);
+		String keyword = request.getParameter("keyword");
+
+	    List<DepartmentModel> departments;
+
+	    if (keyword == null || keyword.trim().isEmpty()) {
+	        departments = DepartmentDAO.getAllDept();
+	    } else {
+	        departments = DepartmentDAO.searchDepartment(keyword);
+	    }
+
+	    request.setAttribute("depts", departments);
+
+	    request.getRequestDispatcher("admin/admin-department-list.jsp").forward(request, response);
 	}
 	
 	private void viewDept(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {

@@ -72,7 +72,7 @@
         </div>
 
         <a class="btn btn-outline-secondary rounded-pill px-4"
-           href="admin-user-list.jsp">
+           href="UserController?action=list">
             <i class="bi bi-arrow-left me-2"></i>Back to List
         </a>
 
@@ -202,7 +202,6 @@
 </div>
 </div>
 
-<jsp:include page="/notification-widget.jsp" />
 <jsp:include page="/chatbot-widget.jsp" />
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

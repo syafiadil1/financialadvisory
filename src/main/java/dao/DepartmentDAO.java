@@ -47,6 +47,47 @@ public class DepartmentDAO {
 		
 	}
 	
+	public static List<DepartmentModel> searchDepartment(String keyword)
+	        throws SQLException {
+
+	    List<DepartmentModel> departments = new ArrayList<>();
+
+	    try {
+
+	        conn = DBConnection.getConnection();
+
+	        sql = "SELECT * "
+	            + "FROM DEPARTMENT "
+	            + "WHERE LOWER(NAME) LIKE ? "
+	            + "ORDER BY DEPARTMENTID";
+
+	        ps = conn.prepareStatement(sql);
+
+	        ps.setString(1, "%" + keyword.toLowerCase() + "%");
+
+	        rs = ps.executeQuery();
+
+	        while (rs.next()) {
+
+	            DepartmentModel dept = new DepartmentModel();
+
+	            dept.setDepartmentId(rs.getInt("DEPARTMENTID"));
+	            dept.setName(rs.getString("NAME"));
+	            dept.setDescription(rs.getString("DESCRIPTION"));
+
+	            departments.add(dept);
+	        }
+
+	        rs.close();
+	        ps.close();
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return departments;
+	}
+	
     public static DepartmentModel getDeptById(int id) throws SQLException{
     	
     	DepartmentModel d = null;

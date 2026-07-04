@@ -14,6 +14,7 @@ import java.util.List;
 import dao.DepartmentDAO;
 import dao.RoleDAO;
 import dao.UserDAO;
+import helper.SessionHelper;
 import model.DepartmentModel;
 import model.RoleModel;
 import model.UserModel;
@@ -77,12 +78,44 @@ public class UserController extends HttpServlet {
 	
 	
 	
-	//This is a method to show all list of user
-	 private void listUser(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
+	//This is a method to show all list of user or filtering
+	private void listUser(HttpServletRequest request, HttpServletResponse response)
+	        throws SQLException, ServletException, IOException {
 
-	        List<UserModel> Userlist = UserDAO.getAllUsers();
-	        request.setAttribute("users", Userlist);
-	        request.getRequestDispatcher("admin/admin-user-list.jsp").forward(request, response);
+	    String keyword = request.getParameter("keyword");
+	    String roleIdParam = request.getParameter("roleId");
+	    String departmentIdParam = request.getParameter("departmentId");
+
+	    List<UserModel> userList;
+
+	    // No filter selected
+	    if ((keyword == null || keyword.trim().isEmpty())
+	            && (roleIdParam == null || roleIdParam.isEmpty())
+	            && (departmentIdParam == null || departmentIdParam.isEmpty())) {
+
+	        userList = UserDAO.getAllUsers();
+
+	    } else {
+
+	        Integer roleId = null;
+	        Integer departmentId = null;
+
+	        if (roleIdParam != null && !roleIdParam.isEmpty()) {
+	            roleId = Integer.parseInt(roleIdParam);
+	        }
+
+	        if (departmentIdParam != null && !departmentIdParam.isEmpty()) {
+	            departmentId = Integer.parseInt(departmentIdParam);
+	        }
+
+	        userList = UserDAO.filterUsers(keyword, roleId, departmentId);
+	    }
+
+	    request.setAttribute("users", userList);
+	    request.setAttribute("depts", DepartmentDAO.getAllDept());
+	    request.setAttribute("roles", RoleDAO.getAllRoles());
+
+	    request.getRequestDispatcher("admin/admin-user-list.jsp").forward(request, response);
 	}
 	
 	 // this is a method to display details of a user (id)
@@ -166,8 +199,11 @@ public class UserController extends HttpServlet {
         }
         
         UserDAO.updateUser(userData);
-        
-        response.sendRedirect(request.getContextPath() + "/UserController?action=list");
+        String source = request.getParameter("source");
+        if ("profile".equals(source)) {
+        	response.sendRedirect(request.getContextPath() + "/UserController?action=showUserProfile");
+        }else
+        	response.sendRedirect(request.getContextPath() + "/UserController?action=list");
 	}
 	
 	public void deleteUser(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -180,9 +216,9 @@ public class UserController extends HttpServlet {
 	private void showProfile(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException, SQLException {
 
-	    HttpSession session = request.getSession(false);
+	    //HttpSession session = request.getSession(false);
 
-	    UserModel loginUser = (UserModel) session.getAttribute("user");
+	    UserModel loginUser = SessionHelper.getCurrentUser(request);
 
 	    int userId = loginUser.getUserId();
 

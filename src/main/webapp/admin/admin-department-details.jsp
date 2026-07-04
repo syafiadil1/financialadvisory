@@ -103,7 +103,7 @@
 										       class="form-control rounded-3"
 										       name="departmentCode"
 										       value="${dept.departmentId}"
-										       ${mode == 'create' ? '' : 'readonly'}>
+										       ${mode == 'create' ? '' : 'disabled'}>
 							        </div>
 							
 							        <!-- Department Name -->
@@ -113,34 +113,6 @@
 							                   class="form-control rounded-3"
 							                   name="departmentName"
 							                   value="${dept.name}">
-							        </div>
-							
-							        <!-- MANAGER (HARDCODED ONLY) -->
-							        <div class="col-md-6">
-							            <label class="form-label">Department Manager</label>
-							
-							            <select class="form-select rounded-3" name="manager">
-							
-							                <option value="0">Not Assigned</option>
-							                <option value="1">Abu Bakar</option>
-							                <option value="2">Sarah Ahmad</option>
-							                <option value="3">Mohd Farhan</option>
-							
-							            </select>
-							        </div>
-							
-							        <!-- STATUS (HARDCODED ONLY) -->
-							        <div class="col-md-6">
-							            <label class="form-label">Department Status</label>
-							
-							            <select class="form-select rounded-3" name="status">
-							
-							                <option value="Active">Active</option>
-							                <option value="Inactive">Inactive</option>
-							                <option value="Pending">Pending Department Manager</option>
-							
-							            </select>
-							
 							        </div>
 							
 							        <!-- Description -->
