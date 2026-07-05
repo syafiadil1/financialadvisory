@@ -92,11 +92,11 @@
                 </a>
             </c:if>
             
-            <c:if test="${sessionScope.user.roleId == 2">
-            	<a class="nav-link text-white rounded-3 ${activeMenu == 'categories' ? 'active' : ''}"
+            <c:if test="${sessionScope.user.roleId == 2 || sessionScope.user.roleId == 3}">
+            	<a class="nav-link text-white rounded-3 ${activeMenu == 'budget' ? 'active' : ''}"
                    style="${activeMenu == 'budget' ? 'background-color: '.concat(sidebarActiveColor).concat(';') : ''}"
                    href="${contextPath}/BudgetController?action=list">
-                    <i class="bi bi-tags me-2"></i> Category
+                    <i class="bi bi-wallet2 me-2"></i> Budget
                 </a>
             </c:if>
 

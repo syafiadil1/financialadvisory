@@ -68,7 +68,7 @@
 						    <div class="row g-3 mb-3">
 						
 						        <!-- Search -->
-						        <div class="col-md-5">
+						        <div class="col-md-4">
 						            <label class="form-label">Search User</label>
 						            <input type="text"
 						                   class="form-control rounded-3"
@@ -114,11 +114,15 @@
 						        </div>
 						
 						        <!-- Search Button -->
-						        <div class="col-md-1 d-flex align-items-end">
+						        <div class="col-md-2 d-flex align-items-end gap-2">
 						            <button type="submit"
-						                    class="btn btn-danger w-100 rounded-pill">
+						                    class="btn btn-danger flex-fill rounded-pill">
 						                <i class="bi bi-search"></i>
 						            </button>
+						            <a class="btn btn-outline-secondary rounded-pill"
+						               href="${pageContext.request.contextPath}/UserController?action=list">
+						                <i class="bi bi-x-lg"></i>
+						            </a>
 						        </div>
 						
 						    </div>

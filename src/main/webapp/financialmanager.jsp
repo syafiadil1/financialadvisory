@@ -1,3 +1,3 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<c:redirect url="dashboard.jsp?role=financialmanager" />
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<c:redirect url="/DashboardController?action=userInfo" />

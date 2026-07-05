@@ -6,7 +6,10 @@ public class DepartmentBudgetModel {
 
     private Integer departmentBudgetId;
     private Integer departmentId;
+    private String departmentName;
+    private Integer budgetYear;
     private double initialBudget;
+    private double usedBudget;
     private double remainingBudget;
     private Date dateStart;
     private Date dateEnd;
@@ -47,12 +50,36 @@ public class DepartmentBudgetModel {
         this.departmentId = departmentId;
     }
 
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    public Integer getBudgetYear() {
+        return budgetYear;
+    }
+
+    public void setBudgetYear(Integer budgetYear) {
+        this.budgetYear = budgetYear;
+    }
+
     public double getInitialBudget() {
         return initialBudget;
     }
 
     public void setInitialBudget(double initialBudget) {
         this.initialBudget = initialBudget;
+    }
+
+    public double getUsedBudget() {
+        return usedBudget;
+    }
+
+    public void setUsedBudget(double usedBudget) {
+        this.usedBudget = usedBudget;
     }
 
     public double getRemainingBudget() {

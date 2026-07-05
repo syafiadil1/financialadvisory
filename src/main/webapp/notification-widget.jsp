@@ -93,7 +93,7 @@
 				</div>
 			</a>
 
-			<a href="departmentmanager-budget.jsp"
+			<a href="${pageContext.request.contextPath}/BudgetController?action=list"
 				class="list-group-item list-group-item-action p-3 notification-role-item"
 				data-roles="departmentmanager">
 				<div class="d-flex gap-3">
@@ -178,7 +178,7 @@
 				</div>
 			</a>
 
-			<a href="dashboard.jsp?role=financialmanager#company-statement"
+			<a href="${pageContext.request.contextPath}/DashboardController?action=userInfo#company-statement"
 				class="list-group-item list-group-item-action p-3 notification-role-item"
 				data-roles="financialmanager">
 				<div class="d-flex gap-3">
@@ -195,7 +195,7 @@
 				</div>
 			</a>
 
-			<a href="dashboard.jsp?role=financialmanager"
+			<a href="${pageContext.request.contextPath}/DashboardController?action=userInfo"
 				class="list-group-item list-group-item-action p-3 notification-role-item"
 				data-roles="financialmanager">
 				<div class="d-flex gap-3">

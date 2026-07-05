@@ -1,25 +1,34 @@
 const financialManagerChart = document.getElementById("financialManagerChart");
 
 if (financialManagerChart) {
+	const labels = window.companyTrendLabels || [];
+	const incomeData = window.companyIncomeData || [];
+	const expenseData = window.companyExpenseData || [];
+
 	new Chart(financialManagerChart, {
 		type: "bar",
 		data: {
-			labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+			labels: labels,
 			datasets: [
 				{
 					label: "Revenue",
-					data: [12000, 15000, 14000, 18000, 22000, 24500],
+					data: incomeData,
 					backgroundColor: "#36A2EB"
 				},
 				{
 					label: "Expenses",
-					data: [8000, 9500, 11000, 12000, 14200, 15200],
+					data: expenseData,
 					backgroundColor: "#FF6384"
 				}
 			]
 		},
 		options: {
 			responsive: true,
+			maintainAspectRatio: false,
+			interaction: {
+				mode: "index",
+				intersect: false
+			},
 			plugins: {
 				legend: {
 					position: "bottom"

@@ -11,6 +11,7 @@ import model.TransactionModel;
 import model.UserModel;
 import model.AttachmentModel;
 import model.CategoryModel;
+import model.SummaryCardModel;
 import model.TransactionItemModel;
 import util.ErrorUtil;
 
@@ -27,6 +28,8 @@ import java.util.UUID;
 
 import dao.AttachmentDAO;
 import dao.CategoryDAO;
+import dao.DepartmentDAO;
+import dao.SummaryCardDAO;
 import dao.TransactionDAO;
 import dao.TransactionItemDAO;
 import helper.RoleHelper;
@@ -226,18 +229,39 @@ public class TransactionController extends HttpServlet {
 		
 		TransactionDAO transactionDAO = new TransactionDAO();
 		UserModel curr_user = SessionHelper.getCurrentUser(request);
-		
-		ArrayList<TransactionModel> transactions = new ArrayList<>();
-		
+		CategoryDAO categoryDAO = new CategoryDAO();
+
+		String keyword = getStringParameter(request, "keyword");
+		String transactionType = getStringParameter(request, "transactionType");
+		Integer departmentId = null;
 		if (curr_user != null && RoleHelper.isFinancialManager(curr_user)) {
-	        transactions = transactionDAO.getAllTransactions();
-	    } else if (curr_user != null && (RoleHelper.isDepartmentManager(curr_user) || RoleHelper.isStaff(curr_user))) {
-	        transactions = transactionDAO.getTransactionsByDepartmentId(curr_user.getDepartmentId());
-	    }
+			departmentId = getNullableIntParameter(request, "departmentId");
+		} else if (curr_user != null && (RoleHelper.isDepartmentManager(curr_user) || RoleHelper.isStaff(curr_user))) {
+			departmentId = curr_user.getDepartmentId();
+		}
+		Integer categoryId = getNullableIntParameter(request, "categoryId");
+		String paymentMethod = getStringParameter(request, "paymentMethod");
+		String status = getStringParameter(request, "status");
+
+		ArrayList<TransactionModel> transactions = transactionDAO.filterTransactions(keyword, transactionType,
+				departmentId, categoryId, paymentMethod, status);
 		
 		request.setAttribute("transactions_list", transactions);
 		
 		request.setAttribute("isReadOnly", curr_user != null && !RoleHelper.isStaff(curr_user));
+		request.setAttribute("categories_dropdown", categoryDAO.getAllCategories(departmentId));
+		try {
+			request.setAttribute("departments", RoleHelper.isFinancialManager(curr_user)
+					? DepartmentDAO.getAllDept()
+					: new ArrayList<>());
+		} catch (Exception e) {
+			ErrorUtil.log("TransactionController.java", "listTransactions", e);
+			request.setAttribute("departments", new ArrayList<>());
+		}
+		
+		// prepare summary cards
+		List<SummaryCardModel> summaryCards = new SummaryCardDAO().getSummaryCards(curr_user, "transaction");
+		request.setAttribute("summary_cards", summaryCards);
 		
 		request.getRequestDispatcher("transaction.jsp").forward(request, response);
 	}	
@@ -245,9 +269,11 @@ public class TransactionController extends HttpServlet {
 	private void viewTransactionDetails(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    int transactionId = getIntParameter(request, "transactionId");
 	    
+	    UserModel user = SessionHelper.getCurrentUser(request);
+	    
 	    TransactionDAO transactionDAO = new TransactionDAO();
 	    TransactionModel transaction = transactionDAO.getTransactionById(transactionId);
-	    List<CategoryModel> categories = new CategoryDAO().getAllCategories();
+	    List<CategoryModel> categories = new CategoryDAO().getAllCategories(user != null ? user.getDepartmentId() : null);
 	    UserModel curr_user = SessionHelper.getCurrentUser(request);
 	    
 	    if (transaction != null) {
@@ -286,7 +312,9 @@ public class TransactionController extends HttpServlet {
 	}
 
 	private void createTransactionDetails(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<CategoryModel> categories = new CategoryDAO().getAllCategories();
+		UserModel user = SessionHelper.getCurrentUser(request);
+		
+		List<CategoryModel> categories = new CategoryDAO().getAllCategories(user != null ? user.getDepartmentId() : null);
 
 		request.setAttribute("categories_dropdown", categories);
 		request.setAttribute("isEditable", true);
@@ -417,8 +445,23 @@ public class TransactionController extends HttpServlet {
 		return value.isEmpty() ? 0 : Integer.parseInt(value);
 	}
 
+	private Integer getNullableIntParameter(HttpServletRequest request, String key) {
+		String value = getStringParameter(request, key);
+		if (value.isEmpty()) {
+			return null;
+		}
+
+		try {
+			return Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
 	private double getDoubleParameter(HttpServletRequest request, String key) {
 		String value = getStringParameter(request, key);
 		return value.isEmpty() ? 0.0 : Double.parseDouble(value);
 	}
+
+	
 }

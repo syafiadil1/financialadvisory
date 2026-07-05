@@ -80,19 +80,22 @@ public class CategoryController extends HttpServlet {
 	    }
 
 	    String keyword = request.getParameter("keyword");
+	    String categoryType = request.getParameter("categoryType");
 	    CategoryDAO categoryDAO = new CategoryDAO();
-	    List<Integer> categoryIds = categoryDAO.getCategoryIdsByDepartmentId(currUser.getDepartmentId());
-
+	    List<CategoryModel> categoryOptions = categoryDAO.getAllCategories(currUser.getDepartmentId());
 	    List<CategoryModel> categories = new ArrayList<>();
 
-	    for (int categoryId : categoryIds) {
-	        CategoryModel category = categoryDAO.getCategoryById(categoryId);
+	    for (CategoryModel category : categoryOptions) {
 
 	        if (category != null) {
 	        	// No keyword entered by the user(alah maksudnya user tak cari pape)
-	            if (keyword == null || keyword.trim().isEmpty()
-	                    || category.getName().toLowerCase().contains(keyword.toLowerCase())) {
+	            boolean matchesKeyword = keyword == null || keyword.trim().isEmpty()
+	                    || category.getName().toLowerCase().contains(keyword.toLowerCase());
+	            boolean matchesType = categoryType == null || categoryType.trim().isEmpty()
+	                    || ("public".equals(categoryType) && category.isGeneric())
+	                    || ("department".equals(categoryType) && !category.isGeneric());
 
+	            if (matchesKeyword && matchesType) {
 	                categories.add(category);
 	            }
 	        }
@@ -106,13 +109,15 @@ public class CategoryController extends HttpServlet {
 	
 	private void viewCategory(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
+		
+		UserModel currUser = SessionHelper.getCurrentUser(request);
 
 	    int categoryId = Integer.parseInt(request.getParameter("categoryId"));
 
 	    CategoryDAO categoryDAO = new CategoryDAO();
 
 	    CategoryModel category = categoryDAO.getCategoryById(categoryId);
-	    List<CategoryModel> parentCategories = categoryDAO.getAllCategories();
+	    List<CategoryModel> parentCategories = categoryDAO.getAllCategories(currUser.getDepartmentId());
 
 	    if (category == null) {
 	        response.sendRedirect(request.getContextPath() + "/CategoryController?action=list");
@@ -130,9 +135,10 @@ public class CategoryController extends HttpServlet {
 	private void showCreateForm(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
 
+		UserModel currUser = SessionHelper.getCurrentUser(request);
 	    CategoryDAO categoryDAO = new CategoryDAO();
 
-	    List<CategoryModel> parentCategories = categoryDAO.getAllCategories();
+	    List<CategoryModel> parentCategories = categoryDAO.getAllCategories(currUser.getDepartmentId());
 
 	    request.setAttribute("mode", "create");
 	    request.setAttribute("parentCategories", parentCategories);

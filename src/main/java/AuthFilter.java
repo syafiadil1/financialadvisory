@@ -69,7 +69,7 @@ public class AuthFilter implements Filter {
 
             session.setAttribute("error", "Access denied");
             
-            res.sendRedirect(contextPath + "/dashboard.jsp");
+            res.sendRedirect(contextPath + "/DashboardController?action=userInfo");
             return;
         }
 
@@ -78,7 +78,7 @@ public class AuthFilter implements Filter {
 
             session.setAttribute("error", ErrorUtil.format("AuthFilter.java", "doFilter", "Access denied"));
 
-            res.sendRedirect(contextPath + "/dashboard.jsp");
+            res.sendRedirect(contextPath + "/DashboardController?action=userInfo");
             return;
         }
 
@@ -87,7 +87,7 @@ public class AuthFilter implements Filter {
 
             session.setAttribute("error", ErrorUtil.format("AuthFilter.java", "doFilter", "Access denied"));
 
-            res.sendRedirect(contextPath + "/dashboard.jsp");
+            res.sendRedirect(contextPath + "/DashboardController?action=userInfo");
             return;
         }
 

@@ -1,5 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
+
+<c:if test="${empty requestScope.user}">
+	<c:redirect url="/DashboardController?action=userInfo" />
+</c:if>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +20,17 @@
 	section {
 		scroll-margin-top: 20px;
 	}
+
+	.dashboard-chart {
+		display: block;
+		width: 100% !important;
+		height: 280px !important;
+		min-height: 0;
+	}
+
+	.dashboard-chart-empty {
+		min-height: 280px;
+	}
 </style>
 </head>
 <body class="bg-light">
@@ -24,62 +42,37 @@
 
 			<main class="col-12 col-lg-10 p-4">
 				<jsp:include page="/includes/page-header.jsp">
-					<jsp:param name="pageTitle" value="${dashboardTitle}"  />
+					<jsp:param name="pageTitle" value="${dashboardTitle}" />
 					<jsp:param name="pageSubtitle" value="${subtitle}" />
 					<jsp:param name="pageRoleName" value="${role.name}" />
 				</jsp:include>
 
-				<c:if test="${user.roleId == 4}">
-				
-				<section class="row g-4 mb-4">
-					<div class="col-md-6 col-xl-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center">
-									<p class="text-secondary mb-1">Total Revenue</p>
-									<i class="bi bi-graph-up-arrow fs-3 text-success"></i>
+				<section class="row g-3 mb-4">
+					<c:choose>
+						<c:when test="${empty summary_cards}">
+							<div class="col-12">
+								<div class="alert alert-info rounded-4 mb-0">
+									No dashboard summary is available for ${dashboardYear}.
 								</div>
-								<h3 class="fw-bold mb-2">RM 24,500.00</h3>
-								<small class="text-success">+67% from last month</small>
 							</div>
-						</div>
-					</div>
-					<div class="col-md-6 col-xl-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center">
-									<p class="text-secondary mb-1">Total Expenses</p>
-									<i class="bi bi-wallet2 fs-3 text-danger"></i>
+						</c:when>
+						<c:otherwise>
+							<c:forEach var="card" items="${summary_cards}">
+								<div class="col-md-6 col-xl-3">
+									<div class="card border-0 shadow-sm rounded-4 h-100 ${card.borderClass}">
+										<div class="card-body p-4">
+											<div class="d-flex justify-content-between align-items-center">
+												<p class="text-secondary mb-1">${card.title}</p>
+												<i class="bi ${card.iconClass} fs-3 ${card.colorClass}"></i>
+											</div>
+											<h3 class="fw-bold mb-2">${card.data}</h3>
+											<small class="${card.colorClass}">${card.description}</small>
+										</div>
+									</div>
 								</div>
-								<h3 class="fw-bold mb-2">RM 15,200.00</h3>
-								<small class="text-danger">+6.7% from last month</small>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 col-xl-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center">
-									<p class="text-secondary mb-1">Net Profit</p>
-									<i class="bi bi-cash-stack fs-3 text-success"></i>
-								</div>
-								<h3 class="fw-bold mb-2">RM 9,300.00</h3>
-								<small class="text-success">Positive cashflow</small>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 col-xl-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100 border-start border-primary border-5">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center">
-									<p class="text-secondary mb-1">Risk Status</p>
-									<i class="bi bi-shield-check fs-3 text-primary"></i>
-								</div>
-								<h3 class="fw-bold mb-2">Low Risk</h3>
-								<small class="text-primary">Spending is under control</small>
-							</div>
-						</div>
-					</div>
+							</c:forEach>
+						</c:otherwise>
+					</c:choose>
 				</section>
 
 				<section class="row g-4 mb-4">
@@ -87,274 +80,363 @@
 						<div class="card border-0 shadow-sm rounded-4 h-100">
 							<div class="card-body p-4">
 								<div class="d-flex justify-content-between align-items-center mb-3">
-									<h5 class="fw-bold mb-0">Cashflow Trend</h5>
+									<h5 class="fw-bold mb-0">
+										<i class="bi bi-graph-up me-2"></i>
+										<c:choose>
+											<c:when test="${user.roleId == 2 || user.roleId == 1}">Company Financial Analytics</c:when>
+											<c:otherwise>Department Cashflow Trend</c:otherwise>
+										</c:choose>
+									</h5>
+									<span class="badge rounded-pill text-bg-light">${dashboardYear}</span>
 								</div>
-								<canvas id="cashflowChart" height="120"></canvas>
+								<c:choose>
+									<c:when test="${empty cashflowTrend}">
+										<div class="text-center text-secondary py-5 dashboard-chart-empty">
+											<i class="bi bi-bar-chart fs-1 d-block mb-2"></i>
+											No approved transaction trend is available for this year.
+										</div>
+									</c:when>
+									<c:when test="${user.roleId == 2 || user.roleId == 1}">
+										<canvas id="financialManagerChart" class="dashboard-chart"></canvas>
+									</c:when>
+									<c:otherwise>
+										<canvas id="cashflowChart" class="dashboard-chart"></canvas>
+									</c:otherwise>
+								</c:choose>
 							</div>
 						</div>
 					</div>
+
 					<div class="col-lg-4">
 						<div class="card border-0 shadow-sm rounded-4 h-100">
 							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center mb-3">
-									<h5 class="fw-bold mb-0">Expense Categories</h5>
-								</div>
-								<div class="d-flex justify-content-between py-3 border-bottom">
-									<span>Rent</span><strong>RM 4,000</strong>
-								</div>
-								<div class="d-flex justify-content-between py-3 border-bottom">
-									<span>Utilities</span><strong>RM 1,200</strong>
-								</div>
-								<div class="d-flex justify-content-between py-3 border-bottom">
-									<span>Salary</span><strong>RM 7,500</strong>
-								</div>
-								<div class="d-flex justify-content-between py-3">
-									<span>Marketing</span><strong>RM 2,500</strong>
-								</div>
+								<h5 class="fw-bold mb-3">
+									<i class="bi bi-pie-chart me-2"></i> Expense Categories
+								</h5>
+								<c:choose>
+									<c:when test="${empty categoryExpenseSummary}">
+										<p class="text-secondary mb-0">No approved expense categories are available for ${dashboardYear}.</p>
+									</c:when>
+									<c:otherwise>
+										<c:forEach var="category" items="${categoryExpenseSummary}" varStatus="s">
+											<div class="d-flex justify-content-between py-3 ${!s.last ? 'border-bottom' : ''}">
+												<span>${category.label}</span>
+												<strong>RM <fmt:formatNumber value="${category.data[0]}" type="number" minFractionDigits="2" maxFractionDigits="2" /></strong>
+											</div>
+										</c:forEach>
+									</c:otherwise>
+								</c:choose>
 							</div>
 						</div>
 					</div>
 				</section>
+
+				<c:if test="${user.roleId == 3}">
+					<section class="row g-4 mb-4">
+						<div class="col-lg-8">
+							<div class="card border-0 shadow-sm rounded-4 h-100">
+								<div class="card-body p-4">
+									<div class="d-flex justify-content-between align-items-center mb-3">
+										<h5 class="fw-bold mb-0"><i class="bi bi-wallet2 me-2"></i> Department Budget Usage</h5>
+										<span class="badge rounded-pill text-bg-light">${dashboardYear}</span>
+									</div>
+									<c:choose>
+										<c:when test="${empty departmentBudget}">
+											<div class="text-center text-secondary py-5 dashboard-chart-empty">
+												<i class="bi bi-wallet2 fs-1 d-block mb-2"></i>
+												No active department budget is configured for this year.
+											</div>
+										</c:when>
+										<c:otherwise>
+											<canvas id="departmentBudgetChart" class="dashboard-chart"></canvas>
+										</c:otherwise>
+									</c:choose>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4">
+							<div class="card border-0 shadow-sm rounded-4 h-100">
+								<div class="card-body p-4">
+									<h5 class="fw-bold mb-3"><i class="bi bi-clipboard-data me-2"></i> Budget Snapshot</h5>
+									<c:choose>
+										<c:when test="${empty departmentBudget}">
+											<p class="text-secondary mb-0">Create a department budget to unlock budget usage analytics.</p>
+										</c:when>
+										<c:otherwise>
+											<div class="d-flex justify-content-between py-3 border-bottom">
+												<span>Initial Budget</span>
+												<strong>RM <fmt:formatNumber value="${departmentBudget.initialBudget}" type="number" minFractionDigits="2" maxFractionDigits="2" /></strong>
+											</div>
+											<div class="d-flex justify-content-between py-3 border-bottom">
+												<span>Used Budget</span>
+												<strong class="text-danger">RM <fmt:formatNumber value="${departmentBudget.usedBudget}" type="number" minFractionDigits="2" maxFractionDigits="2" /></strong>
+											</div>
+											<div class="d-flex justify-content-between py-3">
+												<span>Remaining Budget</span>
+												<strong class="${departmentBudget.remainingBudget lt 0 ? 'text-danger' : 'text-success'}">RM <fmt:formatNumber value="${departmentBudget.remainingBudget}" type="number" minFractionDigits="2" maxFractionDigits="2" /></strong>
+											</div>
+										</c:otherwise>
+									</c:choose>
+								</div>
+							</div>
+						</div>
+					</section>
+				</c:if>
 
 				<section class="card border-0 shadow-sm rounded-4 mb-4">
 					<div class="card-body p-4">
 						<h5 class="fw-bold mb-3">
 							<i class="bi bi-pie-chart me-2"></i> Expense Focus Area
 						</h5>
-						<div class="row g-3">
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Rent</p><strong class="text-danger">High Fixed Cost</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Salary</p><strong class="text-warning">Monitor</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Utilities</p><strong class="text-success">Acceptable</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Marketing</p><strong class="text-primary">Review ROI</strong></div></div>
-						</div>
+						<c:choose>
+							<c:when test="${empty categoryExpenseSummary}">
+								<p class="text-secondary mb-0">No expense focus area is available yet.</p>
+							</c:when>
+							<c:otherwise>
+								<div class="row g-3">
+									<c:forEach var="category" items="${categoryExpenseSummary}" varStatus="s">
+										<c:set var="focusClass" value="${s.first ? 'text-danger' : (s.index == 1 ? 'text-warning' : (s.index == 2 ? 'text-primary' : 'text-success'))}" />
+										<c:set var="focusLabel" value="${s.first ? 'Highest Spend' : (s.index == 1 ? 'Monitor' : (s.index == 2 ? 'Review' : 'Acceptable'))}" />
+										<div class="col-md-6 col-xl-3">
+											<div class="border rounded-4 p-3 h-100">
+												<p class="text-secondary mb-1">${category.label}</p>
+												<strong class="${focusClass}">${focusLabel}</strong>
+											</div>
+										</div>
+									</c:forEach>
+								</div>
+							</c:otherwise>
+						</c:choose>
 					</div>
 				</section>
 
-				<section class="row g-4">
-					<div class="col-lg-8">
-						<div class="card border-0 shadow-sm rounded-4">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center mb-3">
-									<h5 class="fw-bold mb-0">Recent Transactions</h5>
-									<a href="transaction.jsp" class="text-decoration-none">View All</a>
+				<c:if test="${user.roleId == 1 || user.roleId == 2 || user.roleId == 3}">
+					<section class="card border-0 shadow-sm rounded-4 mb-4" id="pending-verification">
+						<div class="card-body p-4">
+							<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+								<div>
+									<h5 class="fw-bold mb-1"><i class="bi bi-hourglass-split me-2"></i> Pending Verification</h5>
+									<p class="text-secondary mb-0">Review transactions waiting for approval.</p>
 								</div>
-								<div class="table-responsive">
-									<table class="table table-hover align-middle">
-										<thead><tr><th>Title</th><th>Type</th><th>Category</th><th class="text-end">Amount</th></tr></thead>
-										<tbody>
-											<tr><td>Product Sales</td><td><span class="badge rounded-pill text-bg-success">Income</span></td><td>Sales</td><td class="text-end">RM 8,500</td></tr>
-											<tr><td>Office Rent</td><td><span class="badge rounded-pill text-bg-danger">Expense</span></td><td>Rent</td><td class="text-end">RM 4,000</td></tr>
-											<tr><td>Internet Bill</td><td><span class="badge rounded-pill text-bg-danger">Expense</span></td><td>Utilities</td><td class="text-end">RM 200</td></tr>
-											<tr><td>ABC Supplier Sdn Bhd - INV-0001</td><td><span class="badge rounded-pill text-bg-danger">Expense</span></td><td>Supplies</td><td class="text-end">RM 477</td></tr>
-										</tbody>
-									</table>
-								</div>
+								<a class="btn btn-outline-primary rounded-pill px-4 mt-3 mt-md-0" href="${pageContext.request.contextPath}/TransactionController?action=list">
+									<i class="bi bi-list-ul me-2"></i> View All
+								</a>
+							</div>
+							<div class="table-responsive">
+								<table class="table table-hover align-middle mb-0">
+									<thead>
+										<tr>
+											<th>Date</th>
+											<th>Submitted By</th>
+											<th>Transaction</th>
+											<th>Category</th>
+											<th class="text-end">Amount</th>
+											<th>Status</th>
+											<th class="text-center">Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										<c:choose>
+											<c:when test="${empty pendingTransactions}">
+												<tr>
+													<td colspan="7" class="text-center text-secondary py-4">No pending transactions for ${dashboardYear}.</td>
+												</tr>
+											</c:when>
+											<c:otherwise>
+												<c:forEach var="transaction" items="${pendingTransactions}">
+													<tr>
+														<td><fmt:formatDate value="${transaction.dateTransaction}" pattern="yyyy-MM-dd" /></td>
+														<td>${empty transaction.createdByName ? 'N/A' : transaction.createdByName}</td>
+														<td>${transaction.name}</td>
+														<td>${empty transaction.categoryName ? 'N/A' : transaction.categoryName}</td>
+														<td class="text-end text-danger fw-bold">RM <fmt:formatNumber value="${transaction.totalAmount}" type="number" minFractionDigits="2" maxFractionDigits="2" /></td>
+														<td><span class="badge text-bg-warning rounded-pill">Pending</span></td>
+														<td class="text-center">
+															<a class="btn btn-sm btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/TransactionController?action=view-details&transactionId=${transaction.transactionId}">
+																<i class="bi bi-eye"></i>
+															</a>
+														</td>
+													</tr>
+												</c:forEach>
+											</c:otherwise>
+										</c:choose>
+									</tbody>
+								</table>
 							</div>
 						</div>
-					</div>
-					<div class="col-lg-4">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center mb-3">
-									<h5 class="fw-bold mb-0">AI Financial Advisor</h5>
-								</div>
-								<p class="text-secondary">
-									Your company currently has a positive cashflow. Consider reviewing fixed costs to improve future profitability.
-								</p>
-								<a href="AIAdvisoryController?role=${user.roleId}" class="btn btn-primary w-100 rounded-pill">Open Advisory Chatbot</a>
-							</div>
-						</div>
-					</div>
-				</section>
+					</section>
 				</c:if>
 
-				<c:if test="${user.roleId == 3}">
-				<section class="row g-4 mb-4">
-					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Department Budget</p><h3 class="fw-bold mb-2">RM 50,000.00</h3><small class="text-secondary">Monthly budget allocation</small></div></div></div>
-					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Used Budget</p><h3 class="fw-bold mb-2">RM 31,250.00</h3><small class="text-danger">62.5% used this month</small></div></div></div>
-					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Remaining Budget</p><h3 class="fw-bold mb-2">RM 18,750.00</h3><small class="text-success">Available balance</small></div></div></div>
-					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100 border-start border-warning border-5"><div class="card-body p-4"><p class="text-secondary mb-1">Pending Verification</p><h3 class="fw-bold mb-2">5</h3><small class="text-warning">Staff transactions pending</small></div></div></div>
-				</section>
-
-				<section class="row g-4 mb-4">
-					<div class="col-lg-8">
+				<section class="row g-4">
+					<div class="${user.roleId == 1 ? 'col-12' : 'col-lg-8'}">
 						<div class="card border-0 shadow-sm rounded-4 h-100">
 							<div class="card-body p-4">
 								<div class="d-flex justify-content-between align-items-center mb-3">
-									<h5 class="fw-bold mb-0"><i class="bi bi-graph-up me-2"></i> Department Budget Usage</h5>
+									<h5 class="fw-bold mb-0"><i class="bi bi-list-ul me-2"></i> Recent Transactions</h5>
+									<a href="${pageContext.request.contextPath}/TransactionController?action=list" class="text-decoration-none">View All</a>
 								</div>
-								<canvas id="departmentBudgetChart" height="120"></canvas>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<h5 class="fw-bold mb-3"><i class="bi bi-pie-chart me-2"></i> Spending Categories</h5>
-								<div class="d-flex justify-content-between py-3 border-bottom"><span>Marketing</span><strong>RM 12,000</strong></div>
-								<div class="d-flex justify-content-between py-3 border-bottom"><span>Travel</span><strong>RM 6,500</strong></div>
-								<div class="d-flex justify-content-between py-3 border-bottom"><span>Supplies</span><strong>RM 4,750</strong></div>
-								<div class="d-flex justify-content-between py-3"><span>Training</span><strong>RM 8,000</strong></div>
-							</div>
-						</div>
-					</div>
-				</section>
-
-				<section class="card border-0 shadow-sm rounded-4 mb-4">
-					<div class="card-body p-4">
-						<h5 class="fw-bold mb-3"><i class="bi bi-pie-chart me-2"></i> Expense Focus Area</h5>
-						<div class="row g-3">
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Marketing</p><strong class="text-danger">High Usage</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Training</p><strong class="text-warning">Monitor</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Supplies</p><strong class="text-primary">Review</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Utilities</p><strong class="text-success">Acceptable</strong></div></div>
-						</div>
-					</div>
-				</section>
-
-				<section class="card border-0 shadow-sm rounded-4 mb-4" id="pending-verification">
-					<div class="card-body p-4">
-						<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-							<div>
-								<h5 class="fw-bold mb-1"><i class="bi bi-hourglass-split me-2"></i> Pending Verification</h5>
-								<p class="text-secondary mb-0">Review transactions submitted by department staff.</p>
-							</div>
-						</div>
-						<div class="table-responsive">
-							<table class="table table-hover align-middle">
-								<thead><tr><th>Date</th><th>Submitted By</th><th>Transaction</th><th>Category</th><th class="text-end">Amount</th><th>Status</th><th class="text-center">Action</th></tr></thead>
-								<tbody>
-									<tr><td>2026-05-14</td><td>Aiman Hakim</td><td>Client Meeting Travel</td><td>Travel</td><td class="text-end text-danger fw-bold">RM 850.00</td><td><span class="badge text-bg-warning rounded-pill">Pending</span></td><td class="text-center"><a class="btn btn-sm btn-outline-primary rounded-pill" href="departmentmanager-transaction-details.jsp?id=travel-001"><i class="bi bi-eye me-1"></i>View Details</a></td></tr>
-									<tr><td>2026-05-13</td><td>Nur Sofia</td><td>Marketing Material Printing</td><td>Marketing</td><td class="text-end text-danger fw-bold">RM 1,250.00</td><td><span class="badge text-bg-warning rounded-pill">Pending</span></td><td class="text-center"><a class="btn btn-sm btn-outline-primary rounded-pill" href="departmentmanager-transaction-details.jsp?id=marketing-001"><i class="bi bi-eye me-1"></i>View Details</a></td></tr>
-									<tr><td>2026-05-12</td><td>Farhan Zaki</td><td>Department Training Fee</td><td>Training</td><td class="text-end text-danger fw-bold">RM 3,000.00</td><td><span class="badge text-bg-warning rounded-pill">Pending</span></td><td class="text-center"><a class="btn btn-sm btn-outline-primary rounded-pill" href="departmentmanager-transaction-details.jsp?id=training-002"><i class="bi bi-eye me-1"></i>View Details</a></td></tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</section>
-				</c:if>
-
-				<c:if test="${user.roleId == 2}">
-				<section class="row g-4 mb-4">
-					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Total Revenue</p><h3 class="fw-bold mb-2">RM 67,676,767.00</h3><small class="text-success">Company income summary</small></div></div></div>
-					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Total Expenses</p><h3 class="fw-bold mb-2">RM 676,767.00</h3><small class="text-danger">Approved expenses</small></div></div></div>
-					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body p-4"><p class="text-secondary mb-1">Net Profit</p><h3 class="fw-bold text-success mb-2">RM 67,000,000.00</h3><small class="text-success">Positive cashflow</small></div></div></div>
-					<div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm rounded-4 h-100 border-start border-primary border-5"><div class="card-body p-4"><p class="text-secondary mb-1">Company Status</p><h3 class="fw-bold mb-2">Healthy</h3><small class="text-primary">Based on current period</small></div></div></div>
-				</section>
-
-				<section class="card border-0 shadow-sm rounded-4 mb-4">
-					<div class="card-body p-4">
-						<div class="d-flex justify-content-between align-items-center mb-3">
-							<h5 class="fw-bold mb-0"><i class="bi bi-graph-up me-2"></i> Company Financial Analytics</h5>
-						</div>
-						<canvas id="financialManagerChart" height="110"></canvas>
-					</div>
-				</section>
-
-				<section class="card border-0 shadow-sm rounded-4 mb-4">
-					<div class="card-body p-4">
-						<h5 class="fw-bold mb-3"><i class="bi bi-pie-chart me-2"></i> Expense Focus Area</h5>
-						<div class="row g-3">
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Rent</p><strong class="text-danger">High Fixed Cost</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Salary</p><strong class="text-warning">Monitor</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Utilities</p><strong class="text-success">Acceptable</strong></div></div>
-							<div class="col-md-6 col-xl-3"><div class="border rounded-4 p-3 h-100"><p class="text-secondary mb-1">Marketing</p><strong class="text-primary">Review ROI</strong></div></div>
-						</div>
-					</div>
-				</section>
-
-				<section class="card border-0 shadow-sm rounded-4 mb-4" id="company-statement">
-					<div class="card-body p-4">
-						<h5 class="fw-bold mb-3"><i class="bi bi-funnel me-2"></i> Statement Period</h5>
-						<form action="#" method="post">
-							<div class="row g-3 align-items-end">
-								<div class="col-md-3"><label class="form-label">Statement Month</label><select class="form-select rounded-3" name="statementMonth"><option selected>June</option><option>May</option><option>April</option><option>March</option></select></div>
-								<div class="col-md-3"><label class="form-label">Statement Year</label><select class="form-select rounded-3" name="statementYear"><option selected>2026</option><option>2025</option><option>2024</option></select></div>
-								<div class="col-md-3"><label class="form-label">Statement Type</label><select class="form-select rounded-3" name="statementType"><option selected>Monthly Statement</option><option>Quarterly Statement</option><option>Yearly Statement</option></select></div>
-								<div class="col-md-3"><button class="btn btn-primary rounded-pill w-100" type="submit"><i class="bi bi-file-earmark-text me-2"></i> Generate Preview</button></div>
-							</div>
-						</form>
-					</div>
-				</section>
-
-				<section class="card border-0 shadow-sm rounded-4 mb-4">
-					<div class="card-body p-4">
-						<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-							<div>
-								<h5 class="fw-bold mb-1"><i class="bi bi-file-earmark-bar-graph me-2"></i> Company Statement Preview</h5>
-								<p class="text-secondary mb-0">Statement for June 2026 generated from verified company transactions.</p>
-							</div>
-						</div>
-						<div class="table-responsive mb-4">
-							<table class="table table-hover align-middle">
-								<thead><tr><th>Statement Item</th><th>Description</th><th class="text-end">Amount</th></tr></thead>
-								<tbody>
-									<tr><td>Total Revenue</td><td>All verified income transactions for the selected period.</td><td class="text-end text-success">RM 67,676,767.00</td></tr>
-									<tr><td>Total Expenses</td><td>All verified expense transactions for the selected period.</td><td class="text-end text-danger">RM 676,767.00</td></tr>
-									<tr><td class="fw-bold">Net Profit</td><td class="fw-bold">Total revenue minus total expenses.</td><td class="text-end fw-bold text-success">RM 67,000,000.00</td></tr>
-								</tbody>
-							</table>
-						</div>
-						<div class="alert alert-success rounded-4 mb-0">
-							<h6 class="fw-bold mb-1">Statement Conclusion</h6>
-							<p class="mb-0">The company is in a healthy financial position for this period because revenue is higher than expenses.</p>
-						</div>
-					</div>
-				</section>
-
-				<section class="row g-4">
-					<div class="col-lg-6">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<h5 class="fw-bold mb-3"><i class="bi bi-list-ul me-2"></i> Statement Transaction Summary</h5>
 								<div class="table-responsive">
 									<table class="table table-hover align-middle mb-0">
-										<thead><tr><th>Category</th><th>Type</th><th class="text-end">Amount</th></tr></thead>
+										<thead>
+											<tr>
+												<th>Date</th>
+												<th>Title</th>
+												<th>Type</th>
+												<th>Category</th>
+												<th class="text-end">Amount</th>
+												<th>Status</th>
+											</tr>
+										</thead>
 										<tbody>
-											<tr><td>Sales</td><td><span class="badge rounded-pill text-bg-success">Income</span></td><td class="text-end">RM 67,676,767.00</td></tr>
-											<tr><td>Rent</td><td><span class="badge rounded-pill text-bg-danger">Expense</span></td><td class="text-end">RM 400,000.00</td></tr>
-											<tr><td>Utilities</td><td><span class="badge rounded-pill text-bg-danger">Expense</span></td><td class="text-end">RM 76,767.00</td></tr>
-											<tr><td>Supplies</td><td><span class="badge rounded-pill text-bg-danger">Expense</span></td><td class="text-end">RM 200,000.00</td></tr>
+											<c:choose>
+												<c:when test="${empty recentTransactions}">
+													<tr>
+														<td colspan="6" class="text-center text-secondary py-4">No transactions are available for ${dashboardYear}.</td>
+													</tr>
+												</c:when>
+												<c:otherwise>
+													<c:forEach var="transaction" items="${recentTransactions}">
+														<c:set var="typeLower" value="${fn:toLowerCase(transaction.transactionType)}" />
+														<c:set var="statusLower" value="${fn:toLowerCase(transaction.status)}" />
+														<tr>
+															<td><fmt:formatDate value="${transaction.dateTransaction}" pattern="yyyy-MM-dd" /></td>
+															<td>${transaction.name}</td>
+															<td>
+																<span class="badge rounded-pill ${typeLower == 'income' ? 'text-bg-success' : 'text-bg-danger'}">
+																	${typeLower == 'income' ? 'Income' : 'Expense'}
+																</span>
+															</td>
+															<td>${empty transaction.categoryName ? 'N/A' : transaction.categoryName}</td>
+															<td class="text-end ${typeLower == 'income' ? 'text-success' : 'text-danger'} fw-bold">
+																RM <fmt:formatNumber value="${transaction.totalAmount}" type="number" minFractionDigits="2" maxFractionDigits="2" />
+															</td>
+															<td>
+																<c:choose>
+																	<c:when test="${statusLower == 'approved'}"><span class="badge rounded-pill text-bg-success">Approved</span></c:when>
+																	<c:when test="${statusLower == 'rejected'}"><span class="badge rounded-pill text-bg-danger">Rejected</span></c:when>
+																	<c:when test="${statusLower == 'pending'}"><span class="badge rounded-pill text-bg-warning">Pending</span></c:when>
+																	<c:otherwise><span class="badge rounded-pill text-bg-secondary">${transaction.status}</span></c:otherwise>
+																</c:choose>
+															</td>
+														</tr>
+													</c:forEach>
+												</c:otherwise>
+											</c:choose>
 										</tbody>
 									</table>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-6">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<h5 class="fw-bold mb-1">Export Statement</h5>
-								<p class="text-secondary mb-4">Download or print the generated company statement for reporting.</p>
-								<div class="d-grid gap-3">
-									<button class="btn btn-outline-primary rounded-pill px-4" type="button"><i class="bi bi-printer me-2"></i> Print</button>
-									<button class="btn btn-outline-success rounded-pill px-4" type="button"><i class="bi bi-file-earmark-spreadsheet me-2"></i> Export Excel</button>
-									<button class="btn btn-primary rounded-pill px-4" type="button"><i class="bi bi-file-earmark-pdf me-2"></i> Download PDF</button>
+
+					<c:if test="${user.roleId != 1}">
+						<div class="col-lg-4">
+							<div class="card border-0 shadow-sm rounded-4 h-100">
+								<div class="card-body p-4">
+									<h5 class="fw-bold mb-3"><i class="bi bi-robot me-2"></i> AI Financial Advisor</h5>
+									<p class="text-secondary">
+										Use the current dashboard analytics as context for budget, spending, and cashflow questions.
+									</p>
+									<a href="${pageContext.request.contextPath}/AIAdvisoryController?role=${user.roleId == 2 ? 'financialmanager' : (user.roleId == 3 ? 'departmentmanager' : 'staff')}" class="btn btn-primary w-100 rounded-pill">
+										Open Advisory Chatbot
+									</a>
 								</div>
 							</div>
 						</div>
-					</div>
+					</c:if>
 				</section>
+
+				<c:if test="${user.roleId == 2}">
+					<section class="card border-0 shadow-sm rounded-4 mt-4 mb-4" id="company-statement">
+						<div class="card-body p-4">
+							<h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-bar-graph me-2"></i> Company Statement Preview</h5>
+							<p class="text-secondary">Current-year statement generated from approved company transactions.</p>
+							<div class="table-responsive mb-4">
+								<table class="table table-hover align-middle">
+									<thead>
+										<tr>
+											<th>Statement Item</th>
+											<th>Description</th>
+											<th class="text-end">Amount</th>
+										</tr>
+									</thead>
+									<tbody>
+										<c:forEach var="card" items="${summary_cards}">
+											<c:if test="${card.title == 'Total Income' || card.title == 'Total Expenses' || card.title == 'Net Profit' || card.title == 'Net Loss'}">
+												<tr>
+													<td class="fw-semibold">${card.title}</td>
+													<td>${card.description}</td>
+													<td class="text-end ${card.colorClass}">${card.data}</td>
+												</tr>
+											</c:if>
+										</c:forEach>
+									</tbody>
+								</table>
+							</div>
+							<div class="alert alert-info rounded-4 mb-0">
+								Review the analytics above before exporting or sharing this company statement.
+							</div>
+						</div>
+					</section>
 				</c:if>
 			</main>
 		</div>
 	</div>
-<jsp:include page="/includes/common-scripts.jsp" />
-	<script src="js/staff.js"></script>
-	<script src="js/financialmanager.js"></script>
+
+	<jsp:include page="/includes/common-scripts.jsp" />
+	<script>
+		window.cashflowTrendLabels = [
+			<c:forEach var="item" items="${cashflowTrend}" varStatus="s">
+				"${item.label}"<c:if test="${!s.last}">,</c:if>
+			</c:forEach>
+		];
+		window.cashflowIncomeData = [
+			<c:forEach var="item" items="${cashflowTrend}" varStatus="s">
+				${item.data[0]}<c:if test="${!s.last}">,</c:if>
+			</c:forEach>
+		];
+		window.cashflowExpenseData = [
+			<c:forEach var="item" items="${cashflowTrend}" varStatus="s">
+				${item.data[1]}<c:if test="${!s.last}">,</c:if>
+			</c:forEach>
+		];
+		window.companyTrendLabels = window.cashflowTrendLabels;
+		window.companyIncomeData = window.cashflowIncomeData;
+		window.companyExpenseData = window.cashflowExpenseData;
+		window.departmentBudgetLabels = ["Used Budget", "Remaining Budget"];
+		window.departmentBudgetData = [
+			<c:choose>
+				<c:when test="${empty departmentBudget}">0, 0</c:when>
+				<c:otherwise>
+					${departmentBudget.usedBudget},
+					${departmentBudget.remainingBudget lt 0 ? 0 : departmentBudget.remainingBudget}
+				</c:otherwise>
+			</c:choose>
+		];
+	</script>
+	<script src="${pageContext.request.contextPath}/js/staff.js"></script>
+	<script src="${pageContext.request.contextPath}/js/financialmanager.js"></script>
 	<script>
 		const departmentBudgetChart = document.getElementById("departmentBudgetChart");
 		if (departmentBudgetChart) {
 			new Chart(departmentBudgetChart, {
-				type: "line",
+				type: "doughnut",
 				data: {
-					labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-					datasets: [
-						{ label: "Department Budget", data: [50000, 50000, 50000, 50000, 50000, 50000], borderWidth: 3, tension: 0.4, borderColor: "#36A2EB", backgroundColor: "#9BD0F5" },
-						{ label: "Used Budget", data: [12000, 18000, 22000, 26000, 28500, 31250], borderWidth: 3, tension: 0.4, borderColor: "#FF6384", backgroundColor: "#FFB1C1" }
-					]
+					labels: window.departmentBudgetLabels || [],
+					datasets: [{
+						data: window.departmentBudgetData || [],
+						backgroundColor: ["#FF6384", "#36A2EB"]
+					}]
 				},
-				options: { responsive: true, plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true } } }
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							position: "bottom"
+						}
+					}
+				}
 			});
 		}
 	</script>

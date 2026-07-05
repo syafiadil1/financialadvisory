@@ -64,12 +64,29 @@ public class CategoryDAO {
 		return null;
 	}
 	
-	public ArrayList<CategoryModel> getAllCategories() {
+	public ArrayList<CategoryModel> getAllCategories(Integer deparmentId) {
 		try {
 			Connection conn = DBConnection.getConnection();
-			Statement stmt = conn.createStatement();
+
+			StringBuilder sql = new StringBuilder("""
+					SELECT DISTINCT category.categoryid, category.name, category.isgeneric, category.parentcategoryid
+					FROM category
+					LEFT JOIN categoryaccess
+					    ON category.categoryid = categoryaccess.categoryid
+					""");
+
+			if (deparmentId != null) {
+				sql.append(" WHERE category.isgeneric = 1 OR categoryaccess.departmentid = ?");
+			}
+
+			sql.append(" ORDER BY category.name");
+
+			PreparedStatement ps = conn.prepareStatement(sql.toString());
+			if (deparmentId != null) {
+				ps.setInt(1, deparmentId);
+			}
 			
-			ResultSet rs = stmt.executeQuery("SELECT * FROM category");
+			ResultSet rs = ps.executeQuery();
 			
 			ArrayList<CategoryModel> categories = new ArrayList<>();
 			
@@ -82,6 +99,7 @@ public class CategoryDAO {
 				categories.add(category);
 			}
 			
+			ps.close();
 			conn.close();
 			return categories;
 			
@@ -89,7 +107,7 @@ public class CategoryDAO {
 			ErrorUtil.log("CategoryDAO.java", "getAllCategories", e);
 		}
 		
-		return null; // Placeholder return statement
+		return new ArrayList<>(); // Placeholder return statement
 	}
 	
 	

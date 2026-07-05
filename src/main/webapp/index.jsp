@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -61,7 +62,7 @@
 						<c:choose>
 							<c:when test="${not empty sessionScope.user}">
 								<a class="btn btn-primary rounded-pill px-4"
-									href="dashboard.jsp?role=staff">
+									href="${pageContext.request.contextPath}/DashboardController?action=userInfo">
 									Dashboard
 								</a>
 							</c:when>

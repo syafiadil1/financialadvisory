@@ -1,14 +1,18 @@
 const ctx = document.getElementById("cashflowChart");
 
 if (ctx) {
+    const labels = window.cashflowTrendLabels || [];
+    const incomeData = window.cashflowIncomeData || [];
+    const expenseData = window.cashflowExpenseData || [];
+
     new Chart(ctx, {
         type: "line",
         data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            labels: labels,
             datasets: [
                 {
-                    label: "Revenue",
-                    data: [12000, 15000, 14000, 18000, 22000, 24500],
+                    label: "Income",
+                    data: incomeData,
                     borderWidth: 3,
                     tension: 0.4,
                     borderColor: "#36A2EB",
@@ -16,7 +20,7 @@ if (ctx) {
                 },
                 {
                     label: "Expenses",
-                    data: [8000, 9500, 11000, 12000, 14200, 15200],
+                    data: expenseData,
                     borderWidth: 3,
                     tension: 0.4,
                     borderColor: "#FF6384",
@@ -26,6 +30,11 @@ if (ctx) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
             plugins: {
                 legend: {
                     position: "bottom"

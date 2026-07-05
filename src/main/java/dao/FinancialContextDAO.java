@@ -160,7 +160,7 @@ public class FinancialContextDAO {
         String sql = """
                 SELECT initialbudget, remainingbudget, datestart, dateend
                 FROM departmentbudget
-                WHERE departmentid = ? AND activebudget = 1
+                WHERE departmentid = ? AND isactivebudget = 1
                 ORDER BY dateend DESC
                 FETCH FIRST 1 ROW ONLY
                 """;

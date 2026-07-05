@@ -38,48 +38,7 @@
 				</c:if>
 
 				<section class="row g-4 mb-4">
-					<div class="col-md-6 col-xl-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<p class="text-secondary mb-1">Transactions</p>
-								<h3 class="fw-bold mb-0"><c:out value="${financialContext.transactionCount}" /></h3>
-								<small class="text-secondary"><c:out value="${financialContext.scopeDescription}" /></small>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 col-xl-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<p class="text-secondary mb-1">Income</p>
-								<h3 class="fw-bold text-success mb-0">
-									RM <fmt:formatNumber value="${financialContext.incomeTotal}" pattern="#,##0.00" />
-								</h3>
-								<small class="text-secondary">Recorded income total</small>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 col-xl-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<p class="text-secondary mb-1">Expenses</p>
-								<h3 class="fw-bold text-danger mb-0">
-									RM <fmt:formatNumber value="${financialContext.expenseTotal}" pattern="#,##0.00" />
-								</h3>
-								<small class="text-secondary">Recorded expense total</small>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 col-xl-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<p class="text-secondary mb-1">Net Position</p>
-								<h3 class="fw-bold ${positivePosition ? 'text-success' : 'text-danger'} mb-0">
-									RM <fmt:formatNumber value="${financialContext.netTotal}" pattern="#,##0.00" />
-								</h3>
-								<small class="text-secondary">${positivePosition ? 'Income exceeds expenses' : 'Expenses exceed income'}</small>
-							</div>
-						</div>
-					</div>
+					
 				</section>
 
 				<section class="card border-0 shadow-sm rounded-4 mb-4">

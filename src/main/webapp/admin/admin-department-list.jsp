@@ -71,14 +71,13 @@
 				    <section class="card border-0 shadow-sm rounded-4">
 				        <div class="card-body p-4">
 				
-							<!-- SEARCH (UI only for now) -->
 							<form action="${pageContext.request.contextPath}/DepartmentController" method="get">
 							
 							    <input type="hidden" name="action" value="list">
 							
 							    <div class="row g-3 mb-3">
 							
-							        <div class="col-md-11">
+							        <div class="col-md-10">
 							            <label class="form-label">Search Department</label>
 							
 							            <input type="text"
@@ -88,11 +87,15 @@
 							                   placeholder="Search department name">
 							        </div>
 							
-							        <div class="col-md-1 d-flex align-items-end">
+							        <div class="col-md-2 d-flex align-items-end gap-2">
 							            <button type="submit"
-							                    class="btn btn-danger w-100 rounded-pill">
+							                    class="btn btn-danger flex-fill rounded-pill">
 							                <i class="bi bi-search"></i>
 							            </button>
+							            <a class="btn btn-outline-secondary rounded-pill"
+							               href="${pageContext.request.contextPath}/DepartmentController?action=list">
+							                <i class="bi bi-x-lg"></i>
+							            </a>
 							        </div>
 							
 							    </div>

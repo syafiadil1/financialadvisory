@@ -233,6 +233,143 @@ public class TransactionDAO {
 		
 		return new ArrayList<>(); // Placeholder return statement
 	}
+
+	public ArrayList<TransactionModel> filterTransactions(String keyword, String transactionType, Integer departmentId,
+			Integer categoryId, String paymentMethod, String status) {
+		ArrayList<TransactionModel> transactions = new ArrayList<>();
+
+		StringBuilder sql = new StringBuilder("""
+				SELECT
+				    transactionid AS transactionId,
+				    transaction.name AS transactionName,
+				    transaction.description AS transactionDescription,
+				    invoiceno AS invoiceNO,
+				    payer AS payer,
+				    payee AS payee,
+				    transaction.categoryId AS categoryId,
+				    c.name AS categoryName,
+				    transaction.departmentId AS departmentId,
+				    d.name AS departmentName,
+				    transactionType AS transactionType,
+				    paymentMethod AS paymentMethod,
+				    totalAmount AS totalAmount,
+				    currency AS currency,
+				    dateTransaction AS dateTransaction,
+				    createdBy AS createdBy,
+				    created.name AS createdName,
+				    verifiedBy AS verifiedBy,
+				    verified.name AS verifiedName,
+				    status AS status
+				FROM transaction
+				LEFT JOIN category c
+				    ON transaction.categoryid = c.categoryid
+				LEFT JOIN department d
+				    ON transaction.departmentid = d.departmentid
+				LEFT JOIN users created
+				    ON transaction.createdby = created.userid
+				LEFT JOIN users verified
+				    ON transaction.verifiedby = verified.userid
+				WHERE 1 = 1
+				""");
+
+		boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+		boolean hasType = transactionType != null && !transactionType.trim().isEmpty();
+		boolean hasPaymentMethod = paymentMethod != null && !paymentMethod.trim().isEmpty();
+		boolean hasStatus = status != null && !status.trim().isEmpty();
+
+		if (hasKeyword) {
+			sql.append("""
+					 AND (LOWER(transaction.name) LIKE ?
+					  OR LOWER(transaction.description) LIKE ?
+					  OR LOWER(invoiceno) LIKE ?
+					  OR LOWER(payer) LIKE ?
+					  OR LOWER(payee) LIKE ?)
+					""");
+		}
+
+		if (hasType) {
+			sql.append(" AND LOWER(transactionType) = ?");
+		}
+
+		if (departmentId != null) {
+			sql.append(" AND transaction.departmentId = ?");
+		}
+
+		if (categoryId != null) {
+			sql.append(" AND transaction.categoryId = ?");
+		}
+
+		if (hasPaymentMethod) {
+			sql.append(" AND LOWER(paymentMethod) LIKE ?");
+		}
+
+		if (hasStatus) {
+			sql.append(" AND LOWER(status) = ?");
+		}
+
+		sql.append(" ORDER BY dateTransaction DESC, transactionid DESC");
+
+		try (Connection conn = DBConnection.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+			int index = 1;
+
+			if (hasKeyword) {
+				String searchKeyword = "%" + keyword.trim().toLowerCase() + "%";
+				for (int i = 0; i < 5; i++) {
+					pstmt.setString(index++, searchKeyword);
+				}
+			}
+
+			if (hasType) {
+				pstmt.setString(index++, transactionType.trim().toLowerCase());
+			}
+
+			if (departmentId != null) {
+				pstmt.setInt(index++, departmentId);
+			}
+
+			if (categoryId != null) {
+				pstmt.setInt(index++, categoryId);
+			}
+
+			if (hasPaymentMethod) {
+				pstmt.setString(index++, "%" + paymentMethod.trim().toLowerCase() + "%");
+			}
+
+			if (hasStatus) {
+				pstmt.setString(index, status.trim().toLowerCase());
+			}
+
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					transactions.add(new TransactionModel(rs.getInt("transactionId"),
+							rs.getString("transactionName"),
+							rs.getString("transactionDescription"),
+							rs.getString("invoiceNO"),
+							rs.getString("payer"),
+							rs.getString("payee"),
+							rs.getInt("categoryId"),
+							rs.getString("CategoryName"),
+							rs.getInt("departmentId"),
+							rs.getString("DepartmentName"),
+							rs.getString("transactionType"),
+							rs.getString("paymentMethod"),
+							rs.getDouble("totalAmount"),
+							rs.getString("currency"),
+							rs.getDate("dateTransaction"),
+							rs.getString("status"),
+							rs.getInt("createdBy"),
+							rs.getString("createdName"),
+							rs.getInt("verifiedBy"),
+							rs.getString("verifiedName")));
+				}
+			}
+		} catch (Exception e) {
+			ErrorUtil.log("TransactionDAO.java", "filterTransactions", e);
+		}
+
+		return transactions;
+	}
 	
 	public Integer createTransaction(TransactionModel transaction) {
 		// Code to create a new transaction in the database
@@ -363,7 +500,109 @@ public class TransactionDAO {
 				
 			} catch (Exception e) {
 				ErrorUtil.log("TransactionDAO.java", "deleteTransaction", e);
-			}
+		}
 		return false; // Return false if an error occurs
+	}
+
+	public ArrayList<TransactionModel> getRecentTransactions(Integer departmentId, int limit) {
+		return getDashboardTransactions(null, departmentId, limit);
+	}
+
+	public ArrayList<TransactionModel> getPendingTransactions(Integer departmentId, int limit) {
+		return getDashboardTransactions("pending", departmentId, limit);
+	}
+
+	private ArrayList<TransactionModel> getDashboardTransactions(String status, Integer departmentId, int limit) {
+		ArrayList<TransactionModel> transactions = new ArrayList<>();
+		StringBuilder sql = new StringBuilder("""
+				SELECT *
+				FROM (
+				    SELECT
+				        transactionid AS transactionId,
+				        transaction.name AS transactionName,
+				        transaction.description AS transactionDescription,
+				        invoiceno AS invoiceNO,
+				        payer AS payer,
+				        payee AS payee,
+				        transaction.categoryId AS categoryId,
+				        c.name AS categoryName,
+				        transaction.departmentId AS departmentId,
+				        d.name AS departmentName,
+				        transactionType AS transactionType,
+				        paymentMethod AS paymentMethod,
+				        totalAmount AS totalAmount,
+				        currency AS currency,
+				        dateTransaction AS dateTransaction,
+				        createdBy AS createdBy,
+				        created.name AS createdName,
+				        verifiedBy AS verifiedBy,
+				        verified.name AS verifiedName,
+				        status AS status
+				    FROM transaction
+				    LEFT JOIN category c
+				        ON transaction.categoryid = c.categoryid
+				    LEFT JOIN department d
+				        ON transaction.departmentid = d.departmentid
+				    LEFT JOIN users created
+				        ON transaction.createdby = created.userid
+				    LEFT JOIN users verified
+				        ON transaction.verifiedby = verified.userid
+				    WHERE EXTRACT(YEAR FROM dateTransaction) = EXTRACT(YEAR FROM SYSDATE)
+				""");
+
+		if (status != null) {
+			sql.append(" AND LOWER(status) = ?");
+		}
+
+		if (departmentId != null) {
+			sql.append(" AND transaction.departmentId = ?");
+		}
+
+		sql.append("""
+				    ORDER BY dateTransaction DESC, transactionid DESC
+				)
+				WHERE ROWNUM <= ?
+				""");
+
+		try (Connection conn = DBConnection.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+			int index = 1;
+			if (status != null) {
+				pstmt.setString(index++, status.toLowerCase());
+			}
+			if (departmentId != null) {
+				pstmt.setInt(index++, departmentId);
+			}
+			pstmt.setInt(index, limit);
+
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					transactions.add(new TransactionModel(rs.getInt("transactionId"),
+							rs.getString("transactionName"),
+							rs.getString("transactionDescription"),
+							rs.getString("invoiceNO"),
+							rs.getString("payer"),
+							rs.getString("payee"),
+							rs.getInt("categoryId"),
+							rs.getString("categoryName"),
+							rs.getInt("departmentId"),
+							rs.getString("departmentName"),
+							rs.getString("transactionType"),
+							rs.getString("paymentMethod"),
+							rs.getDouble("totalAmount"),
+							rs.getString("currency"),
+							rs.getDate("dateTransaction"),
+							rs.getString("status"),
+							rs.getInt("createdBy"),
+							rs.getString("createdName"),
+							rs.getInt("verifiedBy"),
+							rs.getString("verifiedName")));
+				}
+			}
+		} catch (Exception e) {
+			ErrorUtil.log("TransactionDAO.java", "getDashboardTransactions", e);
+		}
+
+		return transactions;
 	}
 	}

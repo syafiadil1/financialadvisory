@@ -30,7 +30,7 @@
 						
 						    <div class="row g-3 mb-4">
 						
-						        <div class="col-md-10">
+						        <div class="col-md-7">
 						            <label class="form-label">Search Category</label>
 						
 						            <input type="text"
@@ -39,12 +39,25 @@
 						                   value="${param.keyword}"
 						                   placeholder="Search by category name">
 						        </div>
+
+						        <div class="col-md-3">
+						            <label class="form-label">Filter Type</label>
+						            <select class="form-select rounded-3" name="categoryType">
+						                <option value="">All Types</option>
+						                <option value="public" ${param.categoryType == 'public' ? 'selected' : ''}>Public</option>
+						                <option value="department" ${param.categoryType == 'department' ? 'selected' : ''}>Department</option>
+						            </select>
+						        </div>
 						
 						        <div class="col-md-2 d-flex align-items-end">
 						            <button type="submit"
-						                    class="btn btn-primary w-100 rounded-pill">
+						                    class="btn btn-primary flex-fill rounded-pill">
 						                <i class="bi bi-search"></i>
 						            </button>
+						            <a class="btn btn-outline-secondary rounded-pill ms-2"
+						               href="${pageContext.request.contextPath}/CategoryController?action=list">
+						                <i class="bi bi-x-lg"></i>
+						            </a>
 						        </div>
 						
 						    </div>
@@ -66,6 +79,7 @@
 									<tr>
 										<th>No.</th>
 										<th>Category Name</th>
+										<th>Type</th>
 										<th class="text-center">Action</th>
 									</tr>
 								</thead>
@@ -76,6 +90,17 @@
 								
 								            <td class="fw-bold">
 								                ${category.name}
+								            </td>
+
+								            <td>
+								                <c:choose>
+								                    <c:when test="${category.generic}">
+								                        <span class="badge rounded-pill text-bg-success">Public</span>
+								                    </c:when>
+								                    <c:otherwise>
+								                        <span class="badge rounded-pill text-bg-primary">Department</span>
+								                    </c:otherwise>
+								                </c:choose>
 								            </td>
 									
 								            <td class="text-center">

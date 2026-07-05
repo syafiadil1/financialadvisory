@@ -10,6 +10,8 @@
 <head>
 <jsp:include page="/includes/common-head.jsp" />
 
+<c:set var="first_card" value="${summary_cards[0]}" />
+
 <style>
 	html {
 		scroll-behavior: smooth;
@@ -43,64 +45,23 @@
 				</jsp:include>
 
 				<!-- Summary Cards -->
-				<section class="row g-4 mb-4">
-					<div class="col-md-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center">
-									<p class="text-secondary mb-1">Total Income</p>
-									<i class="bi bi-arrow-down-circle fs-2 text-success"></i>
-								</div>
-
-								<h3 class="fw-bold mb-0">RM 67,676,767.00</h3>
-								<small class="text-success">Approved income records</small>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-md-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center">
-									<p class="text-secondary mb-1">Total Expenses</p>
-									<i class="bi bi-arrow-up-circle fs-2 text-danger"></i>
-								</div>
-
-								<h3 class="fw-bold mb-0">RM 676,767.00</h3>
-								<small class="text-danger">Approved expense records</small>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-md-3">
-						<div class="card border-0 shadow-sm rounded-4 h-100">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center">
-									<p class="text-secondary mb-1">Net Balance</p>
-									<i class="bi bi-piggy-bank fs-2 text-primary"></i>
-								</div>
-
-								<h3 class="fw-bold mb-0">RM 67,000,000.00</h3>
-								<small class="text-primary">Based on approved transactions</small>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-md-3">
-						<div
-							class="card border-0 shadow-sm rounded-4 h-100 border-start border-warning border-5">
-							<div class="card-body p-4">
-								<div class="d-flex justify-content-between align-items-center">
-									<p class="text-secondary mb-1">Pending Verification</p>
-									<i class="bi bi-hourglass-split fs-2 text-warning"></i>
-								</div>
-
-								<h3 class="fw-bold mb-0">3</h3>
-								<small class="text-warning">Waiting for Department Manager verification</small>
-							</div>
-						</div>
-					</div>
-				</section>
+				<div class="row g-3">
+				    <c:forEach var="card" items="${summary_cards}">
+				        <div class="col">
+				            <div class="card border-0 shadow-sm rounded-4 h-100 ${card.borderClass}">
+				                <div class="card-body p-4">
+				                    <div class="d-flex justify-content-between align-items-center">
+				                        <p class="text-secondary mb-1">${card.title}</p>
+				                        <i class="bi bi-arrow-down-circle fs-2 ${card.colorClass}"></i>
+				                    </div>
+				
+				                    <h3 class="fw-bold mb-0">${card.data}</h3>
+				                    <small class="${card.colorClass}">${card.description}</small>
+				                </div>
+				            </div>
+				        </div>
+				    </c:forEach>
+				</div>
 
 					<!-- Transaction Table -->
 				<section class="card border-0 shadow-sm rounded-4">
@@ -121,6 +82,72 @@
 								</div>
 						</div>
 
+						<form action="${pageContext.request.contextPath}/TransactionController" method="get" class="mb-4">
+							<input type="hidden" name="action" value="list">
+							<div class="row g-3 align-items-end">
+								<div class="col-md-3">
+									<label class="form-label">Search Transaction</label>
+									<input type="text" class="form-control rounded-3" name="keyword"
+										value="${param.keyword}" placeholder="Title, invoice, payer, payee">
+								</div>
+								<div class="col-md-2">
+									<label class="form-label">Type</label>
+									<select class="form-select rounded-3" name="transactionType">
+										<option value="">All Types</option>
+										<option value="income" ${param.transactionType == 'income' ? 'selected' : ''}>Income</option>
+										<option value="expense" ${param.transactionType == 'expense' ? 'selected' : ''}>Expense</option>
+									</select>
+								</div>
+								<c:if test="${not empty departments}">
+									<div class="col-md-2">
+										<label class="form-label">Department</label>
+										<select class="form-select rounded-3" name="departmentId">
+											<option value="">All Departments</option>
+											<c:forEach var="department" items="${departments}">
+												<option value="${department.departmentId}" ${param.departmentId == department.departmentId.toString() ? 'selected' : ''}>
+													${department.name}
+												</option>
+											</c:forEach>
+										</select>
+									</div>
+								</c:if>
+								<div class="col-md-2">
+									<label class="form-label">Category</label>
+									<select class="form-select rounded-3" name="categoryId">
+										<option value="">All Categories</option>
+										<c:forEach var="category" items="${categories_dropdown}">
+											<option value="${category.categoryId}" ${param.categoryId == category.categoryId.toString() ? 'selected' : ''}>
+												${category.name}
+											</option>
+										</c:forEach>
+									</select>
+								</div>
+								<div class="col-md-2">
+									<label class="form-label">Payment</label>
+									<input type="text" class="form-control rounded-3" name="paymentMethod"
+										value="${param.paymentMethod}" placeholder="Method">
+								</div>
+								<div class="col-md-2">
+									<label class="form-label">Status</label>
+									<select class="form-select rounded-3" name="status">
+										<option value="">All Statuses</option>
+										<option value="draft" ${param.status == 'draft' ? 'selected' : ''}>Draft</option>
+										<option value="pending" ${param.status == 'pending' ? 'selected' : ''}>Pending</option>
+										<option value="approved" ${param.status == 'approved' ? 'selected' : ''}>Approved</option>
+										<option value="rejected" ${param.status == 'rejected' ? 'selected' : ''}>Rejected</option>
+									</select>
+								</div>
+								<div class="col-md-1 d-flex gap-2">
+									<button type="submit" class="btn btn-primary w-100 rounded-pill" title="Apply filters">
+										<i class="bi bi-search"></i>
+									</button>
+									<a class="btn btn-outline-secondary rounded-pill" href="${pageContext.request.contextPath}/TransactionController?action=list" title="Clear filters">
+										<i class="bi bi-x-lg"></i>
+									</a>
+								</div>
+							</div>
+						</form>
+
 						<div class="table-responsive">
 							<table class="table table-hover align-middle">
 								<thead>
@@ -128,6 +155,7 @@
 										<th>Date</th>
 										<th>Title</th>
 										<th>Type</th>
+										<th>Department</th>
 										<th>Category</th>
 										<th>Payment</th>
 										<th class="text-end">Amount</th>
@@ -141,7 +169,16 @@
 											<tr>
 												<td>${transaction.dateTransaction}</td>
 												<td>${transaction.getName()}</td>
-												<td>${ empty transaction.transactionType ? 'N/A' : transaction.transactionType}</td>
+												<td><c:choose>
+														<c:when test="${transaction.transactionType eq 'income'}">
+															<span class="badge rounded-pill text-bg-success">Income</span>
+														</c:when>
+														<c:otherwise>
+														<span class="badge rounded-pill text-bg-danger">Expense</span>
+														</c:otherwise>
+												</c:choose>
+												</td>
+												<td>${ empty transaction.departmentName ? 'N/A' : transaction.departmentName}</td>
 												<td>${ empty transaction.categoryName ? 'N/A' : transaction.categoryName}</td>
 												<td>${ empty transaction.paymentMethod ? 'N/A' : transaction.paymentMethod}</td>
 												<td class="text-end text-success fw-bold">RM ${transaction.totalAmount}</td>
