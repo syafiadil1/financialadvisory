@@ -14,6 +14,7 @@ import java.util.List;
 import dao.DepartmentDAO;
 import dao.RoleDAO;
 import dao.UserDAO;
+import helper.RoleHelper;
 import helper.SessionHelper;
 import model.DepartmentModel;
 import model.RoleModel;
@@ -165,6 +166,12 @@ public class UserController extends HttpServlet {
         userData.setRoleId(roleId);
         userData.setDepartmentId(departmentId);
         
+        if (RoleHelper.isDepartmentManager(userData) && UserDAO.checkIfDepartmentManagerExists(departmentId, null)) {
+			setFlash(request, "danger", "A department manager already exists for this department.");
+			response.sendRedirect(request.getContextPath() + "/UserController?action=list");
+			return;
+		}
+        
         boolean success = UserDAO.addUser(userData);
         setFlash(request, success ? "success" : "danger",
         		success ? "User created successfully." : "User could not be created. Please try again.");
@@ -195,6 +202,12 @@ public class UserController extends HttpServlet {
         userData.setPassword(password);
         userData.setRoleId(roleId);
         userData.setDepartmentId(departmentId);
+        
+        if (RoleHelper.isDepartmentManager(userData) && UserDAO.checkIfDepartmentManagerExists(departmentId, userId)) {
+			setFlash(request, "danger", "A department manager already exists for this department.");
+			response.sendRedirect(request.getContextPath() + "/UserController?action=list");
+			return;
+		}
         
         if (password != null && !password.trim().isEmpty()) {
         	userData.setPassword(password); // new password

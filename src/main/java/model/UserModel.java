@@ -7,7 +7,9 @@ public class UserModel {
     private String password;
     private String email;
     private Integer roleId;
+    private String roleName;
     private Integer departmentId;
+    private String departmentName;
 
     public UserModel() {}
 
@@ -16,12 +18,16 @@ public class UserModel {
                      String password,
                      String email,
                      Integer roleId,
-                     Integer departmentId) {
+                     String roleName,
+                     Integer departmentId,
+                     String departmentName) {
 
         this.userId = userId;
         this.name = name;
         this.password = password;
         this.email = email;
+        this.roleName = roleName;
+        this.departmentName = departmentName;
         this.roleId = roleId;
         this.departmentId = departmentId;
     }
@@ -64,6 +70,22 @@ public class UserModel {
 
     public void setRoleId(Integer roleId) {
         this.roleId = roleId;
+    }
+    
+    public String getRoleName() {
+		return roleName;
+	}
+    
+    public void setRoleName(String roleName) {
+    	this.roleName = roleName;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 
     public Integer getDepartmentId() {

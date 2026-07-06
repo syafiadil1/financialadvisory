@@ -67,7 +67,7 @@ public class UserDAO {
         try {
             Connection conn = DBConnection.getConnection();
 
-            String sql = "SELECT * FROM users WHERE USERID = ?";
+            String sql = "SELECT u.USERID, u.NAME, u.EMAIL, u.PASSWORD, u.ROLEID, u.DEPARTMENTID, r.NAME AS ROLENAME, d.NAME AS DEPARTMENTNAME FROM users u LEFT JOIN role r ON u.ROLEID = r.ROLEID LEFT JOIN department d ON u.DEPARTMENTID = d.DEPARTMENTID WHERE u.USERID = ?";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -78,6 +78,8 @@ public class UserDAO {
                 u.setName(rs.getString("NAME"));
                 u.setPassword(rs.getString("PASSWORD"));
                 u.setEmail(rs.getString("EMAIL"));
+                u.setRoleName(rs.getString("ROLENAME"));
+                u.setDepartmentName(rs.getString("DEPARTMENTNAME"));
                 u.setRoleId(rs.getInt("ROLEID"));
                 u.setDepartmentId(rs.getInt("DEPARTMENTID"));
             }
@@ -100,7 +102,7 @@ public class UserDAO {
         try {
             Connection conn = DBConnection.getConnection();
 
-            String sql = "SELECT * FROM users WHERE ROLEID <> 1";
+            String sql = "SELECT u.USERID, u.NAME AS USERNAME, u.EMAIL, u.PASSWORD, u.ROLEID, u.DEPARTMENTID, r.NAME AS ROLENAME, d.NAME AS DEPARTMENTNAME FROM users u LEFT JOIN role r ON u.ROLEID = r.ROLEID LEFT JOIN department d ON u.DEPARTMENTID = d.DEPARTMENTID WHERE u.ROLEID <> 1 ORDER BY u.USERID";
             PreparedStatement ps = conn.prepareStatement(sql);
 
             ResultSet rs = ps.executeQuery();
@@ -108,10 +110,12 @@ public class UserDAO {
             while (rs.next()) {
                 UserModel u = new UserModel();
                 u.setUserId(rs.getInt("USERID"));
-                u.setName(rs.getString("NAME"));
+                u.setName(rs.getString("USERNAME"));
                 u.setEmail(rs.getString("EMAIL"));
                 u.setRoleId(rs.getInt("ROLEID"));
+                u.setRoleName(rs.getString("ROLENAME"));
                 u.setDepartmentId(rs.getInt("DEPARTMENTID"));
+                u.setDepartmentName(rs.getString("DEPARTMENTNAME"));
                 
 
                 list.add(u);
@@ -133,22 +137,22 @@ public class UserDAO {
         try {
             conn = DBConnection.getConnection();
 
-            sql = "SELECT USERID, NAME, EMAIL, PASSWORD, ROLEID, DEPARTMENTID "
-                + "FROM USERS WHERE ROLEID<> 1";
+            sql = "SELECT u.USERID, u.NAME AS USERNAME, u.EMAIL, u.PASSWORD, u.ROLEID, u.DEPARTMENTID, r.NAME AS ROLENAME, d.NAME AS DEPARTMENTNAME "
+                + "FROM USERS u LEFT JOIN role r ON u.ROLEID = r.ROLEID LEFT JOIN department d ON u.DEPARTMENTID = d.DEPARTMENTID WHERE u.ROLEID <> 1";
 
             if (keyword != null && !keyword.trim().isEmpty()) {
-                sql += " AND (LOWER(NAME) LIKE ? OR LOWER(EMAIL) LIKE ?)";
+                sql += " AND (LOWER(u.NAME) LIKE ? OR LOWER(u.EMAIL) LIKE ?)";
             }
 
             if (roleId != null) {
-                sql += " AND ROLEID = ?";
+                sql += " AND u.ROLEID = ?";
             }
 
             if (departmentId != null) {
-                sql += " AND DEPARTMENTID = ?";
+                sql += " AND u.DEPARTMENTID = ?";
             }
 
-            sql += " ORDER BY USERID";
+            sql += " ORDER BY u.USERID";
 
             ps = conn.prepareStatement(sql);
 
@@ -174,11 +178,13 @@ public class UserDAO {
                 UserModel user = new UserModel();
 
                 user.setUserId(rs.getInt("USERID"));
-                user.setName(rs.getString("NAME"));
+                user.setName(rs.getString("USERNAME"));
                 user.setEmail(rs.getString("EMAIL"));
                 user.setPassword(rs.getString("PASSWORD"));
                 user.setRoleId(rs.getInt("ROLEID"));
+                user.setRoleName(rs.getString("ROLENAME"));
                 user.setDepartmentId(rs.getInt("DEPARTMENTID"));
+                user.setDepartmentName(rs.getString("DEPARTMENTNAME"));
 
                 users.add(user);
             }
@@ -204,7 +210,11 @@ public class UserDAO {
     	    ps.setString(2, data.getEmail());
     	    ps.setString(3, data.getPassword());
     	    ps.setInt(4, data.getRoleId());
-    	    ps.setInt(5, data.getDepartmentId());
+    	    if (data.getDepartmentId() == null || data.getDepartmentId() == 0) {
+    	        ps.setNull(5, java.sql.Types.INTEGER);
+    	    } else {
+    	        ps.setInt(5, data.getDepartmentId());
+    	    }
     	    
     	    int rowsAffected = ps.executeUpdate();
     	    
@@ -227,7 +237,7 @@ public class UserDAO {
     	    ps.setString(2, data.getEmail());
     	    ps.setString(3, data.getPassword());
     	    ps.setInt(4, data.getRoleId());
-    	    if (data.getDepartmentId() == 0) {
+    	    if (data.getDepartmentId() == null || data.getDepartmentId() == 0) {
     	        ps.setNull(5, java.sql.Types.INTEGER);
     	    } else {
     	        ps.setInt(5, data.getDepartmentId());
@@ -262,5 +272,36 @@ public class UserDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static boolean checkIfDepartmentManagerExists(Integer departmentId, Integer userId) throws SQLException {
+		boolean exists = false;
+		try {
+			conn = DBConnection.getConnection();
+			sql = "SELECT COUNT(*) AS count FROM USERS WHERE ROLEID = 3 AND DEPARTMENTID = ?";
+			
+			if (userId != null) {
+				sql += " AND USERID <> ?";
+			}
+			
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, departmentId);
+			if (userId != null) {
+				ps.setInt(2, userId);
+			}
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				int count = rs.getInt("count");
+				exists = count > 0;
+			}
+
+			rs.close();
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return exists;
     }
 }

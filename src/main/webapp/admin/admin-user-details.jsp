@@ -95,25 +95,27 @@
 
                 <!-- NAME -->
                 <div class="col-md-6">
-                    <label class="form-label">Full Name</label>
+                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
                     <input type="text" class="form-control rounded-3"
                            name="fullName"
                            value="${user.name}"
-                           placeholder="Enter full name">
+                           placeholder="Enter full name"
+                           required>
                 </div>
 
                 <!-- EMAIL -->
                 <div class="col-md-6">
-                    <label class="form-label">Email Address</label>
+                    <label class="form-label">Email Address <span class="text-danger">*</span></label>
                     <input type="email" class="form-control rounded-3"
                            name="email"
                            value="${user.email}"
-                           placeholder="Enter email">
+                           placeholder="Enter email"
+                           required>
                 </div>
 
                 <!-- ROLE -->
                 <div class="col-md-4">
-                    <label class="form-label">Role</label>
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
                     <select class="form-select rounded-3" name="roleId">
 
                         <c:forEach var="role" items="${roles}">
@@ -130,9 +132,13 @@
 
                 <!-- DEPARTMENT -->
 				<div class="col-md-4">
-				    <label class="form-label">Department</label>
+				    <label class="form-label">Department <span class="text-danger">*</span></label>
 				
 				    <select class="form-select rounded-3" name="departmentId">
+
+				        <option value="0" ${empty user.departmentId || user.departmentId == 0 ? 'selected' : ''}>
+				            Not Applicable
+				        </option>
 				
 				        <c:forEach var="dept" items="${depts}">
 				
@@ -159,12 +165,13 @@
 
                 <!-- PASSWORD -->
                 <div class="col-md-6">
-                    <label class="form-label">Temporary Password</label>
+                    <label class="form-label">Temporary Password <span class="text-danger">*</span></label>
                     <input type="password" class="form-control rounded-3"
                            name="password"
                            placeholder="${mode == 'create'
                                 ? 'Set temporary password'
-                                : 'Leave blank to keep current password'}">
+                                : 'Leave blank to keep current password'}"
+                           required>
                 </div>
 
                 <!-- BUTTONS -->

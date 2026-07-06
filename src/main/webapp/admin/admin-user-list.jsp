@@ -177,11 +177,11 @@
 							
 							                <td>
 							                    <c:choose>
-							                        <c:when test="${user.departmentId == 0}">
+							                        <c:when test="${empty user.departmentId || user.departmentId == 0 || empty user.departmentName}">
 							                            Not Applicable
 							                        </c:when>
 							                        <c:otherwise>
-							                            ${user.departmentId}
+							                            ${user.departmentName}
 							                        </c:otherwise>
 							                    </c:choose>
 							                </td>
