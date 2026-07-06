@@ -100,6 +100,14 @@
                 </a>
             </c:if>
 
+            <c:if test="${sessionScope.user.roleId == 2}">
+                <a class="nav-link text-white rounded-3 ${activeMenu == 'statement' ? 'active' : ''}"
+                   style="${activeMenu == 'statement' ? 'background-color: '.concat(sidebarActiveColor).concat(';') : ''}"
+                   href="${contextPath}/FinancialStatementController?action=preview">
+                    <i class="bi bi-file-earmark-bar-graph me-2"></i> Company Statement
+                </a>
+            </c:if>
+
             <a class="nav-link text-white rounded-3 ${activeMenu == 'advisory' ? 'active' : ''}"
                style="${activeMenu == 'advisory' ? 'background-color: '.concat(sidebarActiveColor).concat(';') : ''}"
                href="${contextPath}/aiadvisory.jsp">
