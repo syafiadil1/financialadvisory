@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.CategoryAccessModel;
 import model.CategoryModel;
 import model.UserModel;
@@ -164,7 +165,7 @@ public class CategoryController extends HttpServlet {
         category.setGeneric(isPublic);
         
         if(isCreate) {
-            CategoryDAO.addCategory(category);
+            boolean categorySaved = CategoryDAO.addCategory(category);
 
             int newCategoryId = CategoryDAO.getLatestCategoryId();
 
@@ -172,13 +173,18 @@ public class CategoryController extends HttpServlet {
             access.setDepartmentId(currUser.getDepartmentId());
             access.setCategoryId(newCategoryId);
 
-            CategoryDAO.addCategoryAccess(access);
+            boolean accessSaved = newCategoryId > 0 && CategoryDAO.addCategoryAccess(access);
+            boolean success = categorySaved && accessSaved;
+            setFlash(request, success ? "success" : "danger",
+                    success ? "Category created successfully." : "Category could not be created. Please try again.");
         } else {
             int categoryId = Integer.parseInt(categoryIdParam);
 
             category.setCategoryId(categoryId);
 
-            CategoryDAO.updateCategory(category);
+            boolean success = CategoryDAO.updateCategory(category);
+            setFlash(request, success ? "success" : "danger",
+                    success ? "Category updated successfully." : "Category could not be updated. Please try again.");
         }
 
         response.sendRedirect(request.getContextPath() + "/CategoryController?action=list");
@@ -193,8 +199,16 @@ public class CategoryController extends HttpServlet {
 
         CategoryDAO.deleteCategoryAccess(currUser.getDepartmentId(), categoryId);
 
-        CategoryDAO.deleteCategory(categoryId);
+        boolean categoryDeleted = CategoryDAO.deleteCategory(categoryId);
+        setFlash(request, categoryDeleted ? "success" : "danger",
+                categoryDeleted ? "Category deleted successfully." : "Category could not be deleted. Please try again.");
 
         response.sendRedirect(request.getContextPath() + "/CategoryController?action=list");
+    }
+
+    private void setFlash(HttpServletRequest request, String type, String message) {
+        HttpSession session = request.getSession();
+        session.setAttribute("flashType", type);
+        session.setAttribute("flashMessage", message);
     }
 }

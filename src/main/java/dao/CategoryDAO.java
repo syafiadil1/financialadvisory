@@ -136,7 +136,7 @@ public class CategoryDAO {
 	    return categoryIds;
 	}
 	
-    public static void addCategory(CategoryModel data) {
+    public static boolean addCategory(CategoryModel data) {
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -153,13 +153,15 @@ public class CategoryDAO {
             // You chose option 2: store 0 for parent category
             ps.setInt(3, 0);
 
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
 
             ps.close();
+            return rowsAffected > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public static int getLatestCategoryId() {
@@ -188,7 +190,7 @@ public class CategoryDAO {
         return categoryId;
     }
 
-    public static void addCategoryAccess(CategoryAccessModel data) {
+    public static boolean addCategoryAccess(CategoryAccessModel data) {
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -202,16 +204,18 @@ public class CategoryDAO {
             ps.setInt(1, data.getDepartmentId());
             ps.setInt(2, data.getCategoryId());
 
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
 
             ps.close();
+            return rowsAffected > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
     
-    public static void updateCategory(CategoryModel data){
+    public static boolean updateCategory(CategoryModel data){
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -230,16 +234,18 @@ public class CategoryDAO {
 
             ps.setInt(4, data.getCategoryId());
 
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
 
             ps.close();
+            return rowsAffected > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
     
-    public static void deleteCategoryAccess(int departmentId, int categoryId){
+    public static boolean deleteCategoryAccess(int departmentId, int categoryId){
 
         try {
         	Connection conn = DBConnection.getConnection();
@@ -251,16 +257,18 @@ public class CategoryDAO {
             ps.setInt(1, departmentId);
             ps.setInt(2, categoryId);
 
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
 
             ps.close();
+            return rowsAffected > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
     
-    public static void deleteCategory(int categoryId){
+    public static boolean deleteCategory(int categoryId){
 
         try {
             Connection conn = DBConnection.getConnection();
@@ -271,12 +279,14 @@ public class CategoryDAO {
 
             ps.setInt(1, categoryId);
 
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
 
             ps.close();
+            return rowsAffected > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 }

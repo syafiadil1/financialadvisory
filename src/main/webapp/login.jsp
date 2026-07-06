@@ -216,13 +216,6 @@ if ("loginRequired".equals(error)) {
 
 						</form>
 
-						<div class="text-center mt-4">
-							<span class="text-secondary">Don't have an account?</span>
-							<a href="register.jsp" class="text-decoration-none fw-bold">
-								Register here
-							</a>
-						</div>
-
 						<div class="d-flex align-items-center my-4">
 							<hr class="flex-grow-1">
 							<span class="px-3 text-secondary small">or</span>

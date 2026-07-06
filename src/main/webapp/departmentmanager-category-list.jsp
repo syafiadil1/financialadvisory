@@ -21,6 +21,8 @@
 					<jsp:param name="pageRoleName" value="Department Manager" />
 				</jsp:include>
 
+				<jsp:include page="/includes/flash-alert.jsp" />
+
 				<!-- Category List Section -->
 				<section class="card border-0 shadow-sm rounded-4">
 					<div class="card-body p-4">

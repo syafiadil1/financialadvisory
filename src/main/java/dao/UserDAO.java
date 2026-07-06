@@ -194,7 +194,7 @@ public class UserDAO {
     }
     
     // add new user
-    public static void addUser(UserModel data) throws SQLException{
+    public static boolean addUser(UserModel data) throws SQLException{
     	try {
     		conn = DBConnection.getConnection();
     		sql = "INSERT INTO USERS (NAME, EMAIL, PASSWORD, ROLEID, DEPARTMENTID) VALUES (?, ?, ?, ?, ?)";
@@ -206,18 +206,19 @@ public class UserDAO {
     	    ps.setInt(4, data.getRoleId());
     	    ps.setInt(5, data.getDepartmentId());
     	    
-    	    rs = ps.executeQuery();
+    	    int rowsAffected = ps.executeUpdate();
     	    
-    	    rs.close();
     	    ps.close();   
+    	    return rowsAffected > 0;
     	    
     	}catch (SQLException e) {
     		e.printStackTrace();
     	}
+    	return false;
     }
 
     // update a user
-    public static void updateUser(UserModel data) throws SQLException{
+    public static boolean updateUser(UserModel data) throws SQLException{
     	try {
     		conn = DBConnection.getConnection();
     		sql = "UPDATE USERS SET NAME = ?, EMAIL = ?, PASSWORD = ?, ROLEID = ?, DEPARTMENTID = ? WHERE USERID = ?";
@@ -234,32 +235,32 @@ public class UserDAO {
     	    //ps.setInt(5, data.getDepartmentId());
     	    ps.setInt(6, data.getUserId());
     		
-    	    rs = ps.executeQuery();
+    	    int rowsAffected = ps.executeUpdate();
     	    
-    	    rs.close();
     	    ps.close();
+    	    return rowsAffected > 0;
     	    
     	}catch (SQLException e) {
     		e.printStackTrace();
     	}
+    	return false;
     }
     
     // delete a user
-    public static void deleteUser(int id) throws SQLException{
+    public static boolean deleteUser(int id) throws SQLException{
         try {
             conn = DBConnection.getConnection();
 
             sql = "DELETE FROM USERS WHERE USERID = ?";
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
-            rs = ps.executeQuery();
+            int rowsAffected = ps.executeUpdate();
 
-            
-            
-            rs.close();
             ps.close();
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 }

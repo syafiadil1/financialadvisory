@@ -115,7 +115,7 @@ public class DepartmentDAO {
     	return d;
     }
     
-    public static void addDepartment(DepartmentModel data) throws SQLException{
+    public static boolean addDepartment(DepartmentModel data) throws SQLException{
         try {
             conn = DBConnection.getConnection();
 
@@ -123,19 +123,18 @@ public class DepartmentDAO {
             ps = conn.prepareStatement(sql);
             ps.setString(1, data.getName());
             ps.setString(2, data.getDescription());
-            rs = ps.executeQuery();
+            int rowsAffected = ps.executeUpdate();
 
-            
-            
-            rs.close();
             ps.close();
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
     
     // update a department
-    public static void updateDept(DepartmentModel data) throws SQLException{
+    public static boolean updateDept(DepartmentModel data) throws SQLException{
     	try {
             conn = DBConnection.getConnection();
 
@@ -144,31 +143,31 @@ public class DepartmentDAO {
             ps.setString(1, data.getName());
             ps.setString(2, data.getDescription());
             ps.setInt(3, data.getDepartmentId());
-            rs = ps.executeQuery();
+            int rowsAffected = ps.executeUpdate();
 
-            rs.close();
             ps.close();
+            return rowsAffected > 0;
             
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
     
-    public static void deleteDept(int id) throws SQLException{
+    public static boolean deleteDept(int id) throws SQLException{
         try {
             conn = DBConnection.getConnection();
 
             sql = "DELETE FROM DEPARTMENT WHERE DEPARTMENTID = ?";
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
-            rs = ps.executeQuery();
+            int rowsAffected = ps.executeUpdate();
 
-            
-            
-            rs.close();
             ps.close();
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 }

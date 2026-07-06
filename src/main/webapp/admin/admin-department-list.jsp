@@ -66,6 +66,8 @@
 				        </div>
 				
 				    </div>
+
+				    <jsp:include page="/includes/flash-alert.jsp" />
 	
 				    <!-- TABLE CARD -->
 				    <section class="card border-0 shadow-sm rounded-4">

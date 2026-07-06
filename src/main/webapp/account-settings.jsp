@@ -74,6 +74,8 @@
 
 </div>
 
+<jsp:include page="/includes/flash-alert.jsp" />
+
 <!-- PROFILE CARD -->
 <section class="row g-4">
 

@@ -171,7 +171,7 @@
                 <div class="col-12 d-flex justify-content-end gap-2">
 
                     <a class="btn btn-outline-secondary rounded-pill px-4"
-                       href="admin-user-list.jsp">
+                       href="UserController?action=list">
                         Cancel
                     </a>
 

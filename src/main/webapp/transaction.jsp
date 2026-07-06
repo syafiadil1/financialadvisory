@@ -44,6 +44,8 @@
 					<jsp:param name="pageRoleName" value="Staff" />
 				</jsp:include>
 
+				<jsp:include page="/includes/flash-alert.jsp" />
+
 				<!-- Summary Cards -->
 				<div class="row g-3">
 				    <c:forEach var="card" items="${summary_cards}">

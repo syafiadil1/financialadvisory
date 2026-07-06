@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.DepartmentModel;
 import model.UserModel;
 
@@ -64,6 +65,8 @@ public class DepartmentController extends HttpServlet {
 				updateDept(request, response);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			setFlash(request, "danger", "Department could not be saved. Please try again.");
+			response.sendRedirect(request.getContextPath() + "/DepartmentController?action=list");
 		}
 	}
 	
@@ -113,8 +116,9 @@ public class DepartmentController extends HttpServlet {
 		deptData.setName(deptName);
 		deptData.setDescription(desc);
 		
-		DepartmentDAO.addDepartment(deptData);
-		//System.out.println("Booking added successfully.");
+		boolean success = DepartmentDAO.addDepartment(deptData);
+		setFlash(request, success ? "success" : "danger",
+				success ? "Department created successfully." : "Department could not be created. Please try again.");
         response.sendRedirect(request.getContextPath() + "/DepartmentController?action=list");
 	}
 	
@@ -129,14 +133,23 @@ public class DepartmentController extends HttpServlet {
 		deptData.setName(deptName);
 		deptData.setDescription(desc);
 		
-		DepartmentDAO.updateDept(deptData);
-		//System.out.println("Booking added successfully.");
+		boolean success = DepartmentDAO.updateDept(deptData);
+		setFlash(request, success ? "success" : "danger",
+				success ? "Department updated successfully." : "Department could not be updated. Please try again.");
         response.sendRedirect(request.getContextPath() + "/DepartmentController?action=list");
 	}
 	
 	public void deleteDept(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
 		int id = Integer.parseInt(request.getParameter("id"));
-		DepartmentDAO.deleteDept(id);
+		boolean success = DepartmentDAO.deleteDept(id);
+		setFlash(request, success ? "success" : "danger",
+				success ? "Department deleted successfully." : "Department could not be deleted. Please try again.");
 		response.sendRedirect(request.getContextPath() + "/DepartmentController?action=list");
+	}
+
+	private void setFlash(HttpServletRequest request, String type, String message) {
+		HttpSession session = request.getSession();
+		session.setAttribute("flashType", type);
+		session.setAttribute("flashMessage", message);
 	}
 }

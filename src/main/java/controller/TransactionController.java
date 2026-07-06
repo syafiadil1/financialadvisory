@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import model.TransactionModel;
 import model.UserModel;
@@ -123,8 +124,15 @@ public class TransactionController extends HttpServlet {
 		Integer updatedTransactionId = transactionDAO.createTransaction(transaction);
 		
 		TransactionItemDAO transactionItemDAO = new TransactionItemDAO();
-		transactionItemDAO.upsertAllTransactionItems(items, updatedTransactionId);
-		saveUploadedAttachments(request, updatedTransactionId);
+		boolean itemsSaved = updatedTransactionId != null
+				&& transactionItemDAO.upsertAllTransactionItems(items, updatedTransactionId);
+		if (updatedTransactionId != null) {
+			saveUploadedAttachments(request, updatedTransactionId);
+		}
+
+		boolean success = updatedTransactionId != null && itemsSaved;
+		setRequestFlash(request, success ? "success" : "danger",
+				success ? "Transaction created successfully." : "Transaction could not be created. Please try again.");
 
 		listTransactions(request, response);	
 	} 
@@ -145,8 +153,16 @@ public class TransactionController extends HttpServlet {
 		Integer updatedTransactionId = transactionDAO.updateTransaction(transaction);
 		
 		TransactionItemDAO transactionItemDAO = new TransactionItemDAO();
-		transactionItemDAO.upsertAllTransactionItems(items, updatedTransactionId);
-		saveUploadedAttachments(request, updatedTransactionId);
+		boolean itemsSaved = updatedTransactionId != null
+				&& transactionItemDAO.upsertAllTransactionItems(items, updatedTransactionId);
+		if (updatedTransactionId != null) {
+			saveUploadedAttachments(request, updatedTransactionId);
+		}
+
+		boolean success = updatedTransactionId != null && itemsSaved;
+		String verb = isSubmit ? "submitted" : "updated";
+		setRequestFlash(request, success ? "success" : "danger",
+				success ? "Transaction " + verb + " successfully." : "Transaction could not be " + verb + ". Please try again.");
 
 		listTransactions(request, response);
 	} 
@@ -169,8 +185,11 @@ public class TransactionController extends HttpServlet {
 	    			}
 	    		}
 	    	}
-	    	response.sendRedirect("transaction.jsp"); // Redirect to a success page after creation
+	    	setFlash(request, "success", "Transaction deleted successfully.");
+	    } else {
+	    	setFlash(request, "danger", "Transaction could not be deleted. Please try again.");
 	    }
+	    response.sendRedirect(request.getContextPath() + "/TransactionController?action=list");
 	}
 
 	private void submitTransaction(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -215,7 +234,13 @@ public class TransactionController extends HttpServlet {
 	        boolean success = transactionDAO.updateTransaction(transaction) != null;
 	        
 	        if (success) {
+	        	setRequestFlash(request, "success",
+	        			isApproved ? "Transaction approved successfully." : "Transaction rejected successfully.");
 	        	listTransactions(request, response); // Redirect to a success page after approval
+	        } else {
+	        	setRequestFlash(request, "danger",
+	        			isApproved ? "Transaction could not be approved. Please try again." : "Transaction could not be rejected. Please try again.");
+	        	listTransactions(request, response);
 	        }
 	    } else {
 	        response.sendError(HttpServletResponse.SC_BAD_REQUEST,
@@ -461,6 +486,17 @@ public class TransactionController extends HttpServlet {
 	private double getDoubleParameter(HttpServletRequest request, String key) {
 		String value = getStringParameter(request, key);
 		return value.isEmpty() ? 0.0 : Double.parseDouble(value);
+	}
+
+	private void setFlash(HttpServletRequest request, String type, String message) {
+		HttpSession session = request.getSession();
+		session.setAttribute("flashType", type);
+		session.setAttribute("flashMessage", message);
+	}
+
+	private void setRequestFlash(HttpServletRequest request, String type, String message) {
+		request.setAttribute("flashType", type);
+		request.setAttribute("flashMessage", message);
 	}
 
 	

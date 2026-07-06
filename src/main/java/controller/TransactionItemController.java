@@ -49,10 +49,10 @@ String action = request.getParameter("action");
 			case "delete":
 				// Call the method to delete a transaction
 				TransactionItemDAO transactionItemDAO = new TransactionItemDAO();
-				transactionItemDAO.deleteTransactionItem(Integer.parseInt(request.getParameter("itemId")));
+				boolean success = transactionItemDAO.deleteTransactionItem(Integer.parseInt(request.getParameter("itemId")));
 				
 				response.setContentType("application/json");
-				response.getWriter().write("{\"success\":true}");
+				response.getWriter().write("{\"success\":" + success + "}");
 				break;
 			default:
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST,

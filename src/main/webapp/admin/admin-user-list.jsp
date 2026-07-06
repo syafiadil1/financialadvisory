@@ -58,6 +58,8 @@
 					</div>
 				</div>
 
+				<jsp:include page="/includes/flash-alert.jsp" />
+
 				<section class="card border-0 shadow-sm rounded-4">
 					<div class="card-body p-4">
 					

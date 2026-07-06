@@ -93,6 +93,8 @@
 						</a>
 					</div>
 
+					<jsp:include page="/includes/flash-alert.jsp" />
+
 					<section class="card border-0 shadow-sm transaction-form-card">
 						<div class="card-body p-4">
 							<form id="transactionForm" action="TransactionController" method="post" enctype="multipart/form-data">
@@ -412,6 +414,14 @@
 		const confirmAttachmentUpload = document.getElementById("confirmAttachmentUpload");
 		const attachmentModal = document.getElementById("attachmentUploadModal");
 
+		function notifyAction(type, message) {
+			if (window.showActionAlert) {
+				window.showActionAlert(type, message);
+			} else {
+				alert(message);
+			}
+		}
+
 		// 
 		function updateLineTotal(row) {
 			const qty = Number(row.querySelector(".item-qty").value) || 0;
@@ -523,16 +533,16 @@
 		            result = await res.json();
 		        } catch (err) {
 		            console.error("Invalid JSON response", err);
-		            alert("Server returned invalid response");
+		            notifyAction("danger", "Server returned an invalid response.");
 		            return;
 		        }
 
 		        if (!result.success) {
-		            alert("Delete failed on server");
+		            notifyAction("danger", "Line item could not be deleted. Please try again.");
 		            return;
 		        } 
 		        
-		        alert("Item deleted successfully.");
+		        notifyAction("success", "Line item deleted successfully.");
 		        
 				row.remove();
 				
@@ -548,7 +558,7 @@
 			
 			} catch (err) {
 				console.error(err);
-				alert("Server error while deleting item.")
+				notifyAction("danger", "Server error while deleting line item.");
 			}
 		});
 
@@ -590,15 +600,16 @@
 
 				const result = await res.json();
 				if (!result.success) {
-					alert("Delete failed on server");
+					notifyAction("danger", "Attachment could not be deleted. Please try again.");
 					return;
 				}
 
 				row.remove();
 				toggleAttachmentEmptyMessage();
+				notifyAction("success", "Attachment deleted successfully.");
 			} catch (err) {
 				console.error(err);
-				alert("Server error while deleting attachment.");
+				notifyAction("danger", "Server error while deleting attachment.");
 			}
 		});
 
