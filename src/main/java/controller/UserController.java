@@ -166,6 +166,12 @@ public class UserController extends HttpServlet {
         userData.setRoleId(roleId);
         userData.setDepartmentId(departmentId);
         
+        if (UserDAO.checkIfEmailExists(email, null)) {
+			setFlash(request, "danger", "Email already exists. Please use a different email.");
+			response.sendRedirect(request.getContextPath() + "/UserController?action=create");
+			return;
+		}
+        
         if (RoleHelper.isDepartmentManager(userData) && UserDAO.checkIfDepartmentManagerExists(departmentId, null)) {
 			setFlash(request, "danger", "A department manager already exists for this department.");
 			response.sendRedirect(request.getContextPath() + "/UserController?action=list");

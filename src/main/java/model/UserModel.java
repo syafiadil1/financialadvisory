@@ -10,6 +10,7 @@ public class UserModel {
     private String roleName;
     private Integer departmentId;
     private String departmentName;
+    private String salt;
 
     public UserModel() {}
 
@@ -20,7 +21,8 @@ public class UserModel {
                      Integer roleId,
                      String roleName,
                      Integer departmentId,
-                     String departmentName) {
+                     String departmentName,
+                     String salt) {
 
         this.userId = userId;
         this.name = name;
@@ -30,6 +32,7 @@ public class UserModel {
         this.departmentName = departmentName;
         this.roleId = roleId;
         this.departmentId = departmentId;
+        this.salt = salt;
     }
 
     public Integer getUserId() {
@@ -95,4 +98,12 @@ public class UserModel {
     public void setDepartmentId(Integer departmentId) {
         this.departmentId = departmentId;
     }
+    
+    public void setSalt(String salt) {
+		this.salt = salt;
+	}
+    
+    public String getSalt() {
+		return salt;
+	}
 }

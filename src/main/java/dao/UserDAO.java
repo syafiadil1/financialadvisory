@@ -9,6 +9,7 @@ import java.util.List;
 
 import model.UserModel;
 import connection.DBConnection;
+import util.Encryption;
 import util.ErrorUtil;
 
 public class UserDAO {
@@ -24,19 +25,20 @@ public class UserDAO {
         UserModel user = null;
 
         try {
+        	
 
             conn = DBConnection.getConnection();
 
-            sql = "SELECT * FROM USERS WHERE EMAIL=? AND PASSWORD=?";
+            sql = "SELECT * FROM USERS WHERE EMAIL=?";
 
             ps = conn.prepareStatement(sql);
 
             ps.setString(1, email);
-            ps.setString(2, password);
 
             rs = ps.executeQuery();
 
-            if(rs.next()) {
+            if(rs.next() && Encryption.verifyPassword(password, rs.getString("PASSWORD"), rs.getString("SALT"))) {
+            	
 
                 user = new UserModel();
 
@@ -49,6 +51,8 @@ public class UserDAO {
                 user.setDepartmentId(rs.getInt("DEPARTMENTID"));
 
                 user.setRoleId(rs.getInt("ROLEID"));
+                
+                user.setSalt(rs.getString("SALT"));
             }
 
             conn.close();
@@ -102,7 +106,7 @@ public class UserDAO {
         try {
             Connection conn = DBConnection.getConnection();
 
-            String sql = "SELECT u.USERID, u.NAME AS USERNAME, u.EMAIL, u.PASSWORD, u.ROLEID, u.DEPARTMENTID, r.NAME AS ROLENAME, d.NAME AS DEPARTMENTNAME FROM users u LEFT JOIN role r ON u.ROLEID = r.ROLEID LEFT JOIN department d ON u.DEPARTMENTID = d.DEPARTMENTID WHERE u.ROLEID <> 1 ORDER BY u.USERID";
+            String sql = "SELECT u.USERID, u.NAME AS USERNAME, u.EMAIL, u.PASSWORD, u.ROLEID, u.DEPARTMENTID, r.NAME AS ROLENAME, d.NAME AS DEPARTMENTNAME FROM users u LEFT JOIN role r ON u.ROLEID = r.ROLEID LEFT JOIN department d ON u.DEPARTMENTID = d.DEPARTMENTID WHERE u.ROLEID <> 1 ORDER BY u.ROLEID, u.DEPARTMENTID, u.NAME";
             PreparedStatement ps = conn.prepareStatement(sql);
 
             ResultSet rs = ps.executeQuery();
@@ -152,7 +156,7 @@ public class UserDAO {
                 sql += " AND u.DEPARTMENTID = ?";
             }
 
-            sql += " ORDER BY u.USERID";
+            sql += " ORDER BY u.ROLEID, u.DEPARTMENTID, u.NAME";
 
             ps = conn.prepareStatement(sql);
 
@@ -202,8 +206,16 @@ public class UserDAO {
     // add new user
     public static boolean addUser(UserModel data) throws SQLException{
     	try {
+    		byte[] generatedSalt = Encryption.generateSalt();
+		    String hashedPassword = Encryption.hashPassword(data.getPassword(), generatedSalt);
+		    
+		    String saltString = Encryption.bytesToHex(generatedSalt);
+		    
+		    data.setPassword(hashedPassword);
+		    data.setSalt(saltString);
+    		
     		conn = DBConnection.getConnection();
-    		sql = "INSERT INTO USERS (NAME, EMAIL, PASSWORD, ROLEID, DEPARTMENTID) VALUES (?, ?, ?, ?, ?)";
+    		sql = "INSERT INTO USERS (NAME, EMAIL, PASSWORD, ROLEID, DEPARTMENTID, SALT) VALUES (?, ?, ?, ?, ?, ?)";
     		
     		ps = conn.prepareStatement(sql);
     	    ps.setString(1, data.getName());
@@ -215,6 +227,7 @@ public class UserDAO {
     	    } else {
     	        ps.setInt(5, data.getDepartmentId());
     	    }
+    	    ps.setString(6, data.getSalt());
     	    
     	    int rowsAffected = ps.executeUpdate();
     	    
@@ -223,15 +236,26 @@ public class UserDAO {
     	    
     	}catch (SQLException e) {
     		e.printStackTrace();
-    	}
+    	} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	return false;
     }
 
     // update a user
     public static boolean updateUser(UserModel data) throws SQLException{
     	try {
+    		byte[] generatedSalt = Encryption.generateSalt();
+		    String hashedPassword = Encryption.hashPassword(data.getPassword(), generatedSalt);
+		    
+		    String saltString = Encryption.bytesToHex(generatedSalt);
+		    
+		    data.setPassword(hashedPassword);
+		    data.setSalt(saltString);
+    		
     		conn = DBConnection.getConnection();
-    		sql = "UPDATE USERS SET NAME = ?, EMAIL = ?, PASSWORD = ?, ROLEID = ?, DEPARTMENTID = ? WHERE USERID = ?";
+    		sql = "UPDATE USERS SET NAME = ?, EMAIL = ?, PASSWORD = ?, ROLEID = ?, DEPARTMENTID = ?, SALT = ? WHERE USERID = ?";
     		ps = conn.prepareStatement(sql);
     	    ps.setString(1, data.getName());
     	    ps.setString(2, data.getEmail());
@@ -242,8 +266,8 @@ public class UserDAO {
     	    } else {
     	        ps.setInt(5, data.getDepartmentId());
     	    }
-    	    //ps.setInt(5, data.getDepartmentId());
-    	    ps.setInt(6, data.getUserId());
+    	    ps.setString(6, data.getSalt());
+    	    ps.setInt(7, data.getUserId());
     		
     	    int rowsAffected = ps.executeUpdate();
     	    
@@ -252,7 +276,10 @@ public class UserDAO {
     	    
     	}catch (SQLException e) {
     		e.printStackTrace();
-    	}
+    	} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	return false;
     }
     
@@ -304,4 +331,34 @@ public class UserDAO {
 		
 		return exists;
     }
+    
+    public static boolean checkIfEmailExists(String email, Integer userId) throws SQLException {
+		boolean exists = false;
+		try {
+			conn = DBConnection.getConnection();
+			sql = "SELECT COUNT(*) AS count FROM USERS WHERE EMAIL = ?";
+			
+			if (userId != null) {
+				sql += " AND USERID <> ?";
+			}
+			
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, email);
+			if (userId != null) {
+				ps.setInt(2, userId);
+			}
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				int count = rs.getInt("count");
+				exists = count > 0;
+			}
+
+			rs.close();
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return exists;
+	}
 }
