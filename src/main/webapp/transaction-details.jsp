@@ -51,7 +51,7 @@
 
 	.line-item-grid {
 		display: grid;
-		grid-template-columns: 150px minmax(180px, 1fr) 120px 140px 140px 44px;
+		grid-template-columns: 180px minmax(180px, 1fr) 120px 140px 140px 44px;
 		gap: .75rem;
 		align-items: center;
 	}
@@ -99,6 +99,7 @@
 						<div class="card-body p-4">
 							<form id="transactionForm" action="TransactionController" method="post" enctype="multipart/form-data">
 								<input type="hidden" name="transactionId" value="${transaction != null ? transaction.getTransactionId() : null}">
+								<div id="deletedLineItemInputs" class="d-none"></div>
 								<div id="pendingAttachmentInputs" class="d-none"></div>
 							
 								<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-3 mb-4 border-bottom">
@@ -146,6 +147,7 @@
 									</div>
 									
 									<!-- 2nd row -->
+									<!-- 
 									<div class="col-md-3">
                                         <label class="form-label">Currency</label>
                                         <select class="form-select rounded-3" name="currency" ${disabledAttr}>
@@ -155,12 +157,15 @@
                                             <option value="EUR" <c:if test="${transaction != null && fn:toUpperCase(transaction.currency) eq 'EUR'}">selected</c:if>>EUR (Euro)</option>
                                             <option value="GBP" <c:if test="${transaction != null && fn:toUpperCase(transaction.currency) eq 'GBP'}">selected</c:if>>GBP (British Pound)</option>
                                             <option value="JPY" <c:if test="${transaction != null && fn:toUpperCase(transaction.currency) eq 'JPY'}">selected</c:if>>JPY (Japanese Yen)</option>
-                                            <!-- Add more currencies as needed -->
+                                            <!-- Add more currencies as needed
                                         </select>
                                     </div>
+									 -->
 									<div class="col-md-3">
-										<label class="form-label">Amount (RM)</label>
-										<input type="number" step="0.01" class="form-control rounded-3" ${disabledAttr}
+										<label class="form-label">
+											Amount (RM) <span class="text-danger">*</span>
+										</label>
+										<input type="number" step="0.01" class="form-control rounded-3" required ${disabledAttr}
 											name="amount" value="${transaction != null ? transaction.totalAmount : ''}" placeholder="0.00">
 									</div>
 									<div class="col-md-3">
@@ -410,6 +415,7 @@
 		const grandTotal = document.getElementById("totalAmount");
 		const contextPath = "${pageContext.request.contextPath}";
 		const attachmentList = document.getElementById("attachmentList");
+		const deletedLineItemInputs = document.getElementById("deletedLineItemInputs");
 		const pendingAttachmentInputs = document.getElementById("pendingAttachmentInputs");
 		const confirmAttachmentUpload = document.getElementById("confirmAttachmentUpload");
 		const attachmentModal = document.getElementById("attachmentUploadModal");
@@ -459,6 +465,21 @@
 			}
         }
 
+		function toggleLineItemEmptyMessage() {
+			const hasRows = lineItems.querySelectorAll(".line-item-row").length > 0;
+			let noItemsMessage = document.getElementById("noItemsMessage");
+			if (!noItemsMessage && !hasRows) {
+				noItemsMessage = document.createElement("div");
+				noItemsMessage.id = "noItemsMessage";
+				noItemsMessage.className = "no-items-message text-center text-muted py-3";
+				noItemsMessage.textContent = "No items to show. Click \"Add Item\" to start.";
+				lineItems.appendChild(noItemsMessage);
+			}
+			if (noItemsMessage) {
+				noItemsMessage.classList.toggle("d-none", hasRows);
+			}
+		}
+
 		const addItemBtn = document.getElementById("addItemBtn");
 		if (addItemBtn) {
 			addItemBtn.addEventListener("click", () => {
@@ -506,60 +527,18 @@
 			const isConfirmed = confirm("Are you sure you want to delete this line item?");
 			if (!isConfirmed) return;
 			
-			if (!itemId) {
-			    row.remove();
-			    updateGrandTotal();
-			    return;
+			if (itemId) {
+				const deletedInput = document.createElement("input");
+				deletedInput.type = "hidden";
+				deletedInput.name = "deletedItemId";
+				deletedInput.value = itemId;
+				deletedLineItemInputs.appendChild(deletedInput);
 			}
 			
-			try {
-				const formData = new URLSearchParams();
-				formData.append("action", "delete");
-				formData.append("itemId", itemId)
-				
-		        const res = await fetch(`${contextPath}/TransactionItemController`, {
-		            method: "POST",
-		            headers: {
-		                "Content-Type": "application/x-www-form-urlencoded"
-		            },
-		            body: formData.toString()
-		        });
-
-		        if (!res.ok) throw new Error("Failed request");
-
-		        let result;
-
-		        try {
-		            result = await res.json();
-		        } catch (err) {
-		            console.error("Invalid JSON response", err);
-		            notifyAction("danger", "Server returned an invalid response.");
-		            return;
-		        }
-
-		        if (!result.success) {
-		            notifyAction("danger", "Line item could not be deleted. Please try again.");
-		            return;
-		        } 
-		        
-		        notifyAction("success", "Line item deleted successfully.");
-		        
-				row.remove();
-				
-				// If there are no more line items, show the "no items" message
-				const remainingRows = lineItems.querySelectorAll(".line-item-row");
-				const noItemsMessage = document.getElementById("noItemsMessage");
-				
-				if (remainingRows.length === 0 && noItemsMessage) {
-	               noItemsMessage.classList.remove("d-none");
-	            }
-				
-				updateGrandTotal();
-			
-			} catch (err) {
-				console.error(err);
-				notifyAction("danger", "Server error while deleting line item.");
-			}
+	        notifyAction("success", "Line item removed. Save or submit to apply the deletion.");
+			row.remove();
+			toggleLineItemEmptyMessage();
+			updateGrandTotal();
 		});
 
 		attachmentList.addEventListener("click", async (event) => {

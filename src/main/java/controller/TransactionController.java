@@ -143,6 +143,7 @@ public class TransactionController extends HttpServlet {
 		
 		TransactionModel transaction = buildTransaction(request, false);
 		ArrayList<TransactionItemModel> items = buildTransactionItems(request);
+		ArrayList<Integer> deletedItemIds = buildDeletedItemIds(request);
 
 		transaction.setStatus(isSubmit ? "pending" : "draft");
 		transaction.setDepartmentId(curr_user.getDepartmentId());
@@ -155,11 +156,13 @@ public class TransactionController extends HttpServlet {
 		TransactionItemDAO transactionItemDAO = new TransactionItemDAO();
 		boolean itemsSaved = updatedTransactionId != null
 				&& transactionItemDAO.upsertAllTransactionItems(items, updatedTransactionId);
+		boolean deletedItemsSaved = updatedTransactionId != null
+				&& transactionItemDAO.deleteTransactionItems(updatedTransactionId, deletedItemIds);
 		if (updatedTransactionId != null) {
 			saveUploadedAttachments(request, updatedTransactionId);
 		}
 
-		boolean success = updatedTransactionId != null && itemsSaved;
+		boolean success = updatedTransactionId != null && itemsSaved && deletedItemsSaved;
 		String verb = isSubmit ? "submitted" : "updated";
 		setRequestFlash(request, success ? "success" : "danger",
 				success ? "Transaction " + verb + " successfully." : "Transaction could not be " + verb + ". Please try again.");
@@ -408,6 +411,29 @@ public class TransactionController extends HttpServlet {
 	    }
 
 	    return items;
+	}
+
+	private ArrayList<Integer> buildDeletedItemIds(HttpServletRequest request) {
+		ArrayList<Integer> deletedItemIds = new ArrayList<>();
+		String[] itemIds = request.getParameterValues("deletedItemId");
+
+		if (itemIds == null) {
+			return deletedItemIds;
+		}
+
+		for (String itemId : itemIds) {
+			if (itemId == null || itemId.trim().isEmpty()) {
+				continue;
+			}
+
+			try {
+				deletedItemIds.add(Integer.parseInt(itemId.trim()));
+			} catch (NumberFormatException e) {
+				ErrorUtil.log("TransactionController.java", "buildDeletedItemIds", e);
+			}
+		}
+
+		return deletedItemIds;
 	}
 
 	private void saveUploadedAttachments(HttpServletRequest request, Integer transactionId) throws IOException, ServletException {

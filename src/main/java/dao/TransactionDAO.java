@@ -396,7 +396,7 @@ public class TransactionDAO {
 			pstmt.setDate(12, (Date) transaction.getDateTransaction());
 			pstmt.setString(13, transaction.getStatus());
 			pstmt.setInt(14, transaction.getCreatedBy());
-			pstmt.setInt(15, transaction.getVerifiedBy());
+			pstmt.setInt(15, transaction.getVerifiedBy() == null ? java.sql.Types.INTEGER : transaction.getVerifiedBy());
 
 			boolean success = pstmt.executeUpdate() > 0;
 			

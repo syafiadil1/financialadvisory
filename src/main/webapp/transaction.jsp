@@ -66,7 +66,7 @@
 				</div>
 
 					<!-- Transaction Table -->
-				<section class="card border-0 shadow-sm rounded-4">
+				<section class="card border-0 shadow-sm rounded-4 mt-4">
 					<div class="card-body p-4">
 						<div class="d-flex justify-content-between align-items-center mb-3">
 							<h5 class="fw-bold mb-0">
@@ -123,11 +123,6 @@
 											</option>
 										</c:forEach>
 									</select>
-								</div>
-								<div class="col-md-2">
-									<label class="form-label">Payment</label>
-									<input type="text" class="form-control rounded-3" name="paymentMethod"
-										value="${param.paymentMethod}" placeholder="Method">
 								</div>
 								<div class="col-md-2">
 									<label class="form-label">Status</label>

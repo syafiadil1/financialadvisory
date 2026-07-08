@@ -158,6 +158,34 @@ public class TransactionItemDAO {
 		}
 	}
 
+	public boolean deleteTransactionItems(Integer transactionId, List<Integer> transactionItemIds) {
+		if (transactionId == null || transactionItemIds == null || transactionItemIds.isEmpty()) {
+			return true;
+		}
+
+		try {
+			Connection conn = DBConnection.getConnection();
+
+			String placeholders = String.join(", ", Collections.nCopies(transactionItemIds.size(), "?"));
+			String sql = "DELETE FROM transactionitem WHERE transactionId = ? AND transactionItemId IN (" + placeholders + ")";
+
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, transactionId);
+			for (int i = 0; i < transactionItemIds.size(); i++) {
+				pstmt.setInt(i + 2, transactionItemIds.get(i));
+			}
+
+			pstmt.executeUpdate();
+			conn.close();
+
+			return true;
+
+		} catch (Exception e) {
+			ErrorUtil.log("TransactionItemDAO.java", "deleteTransactionItems", e);
+			return false;
+		}
+	}
+
 	public boolean deleteTransactionItemsByTransactionId(Integer transactionId) {
 		try {
 			Connection conn = DBConnection.getConnection();
