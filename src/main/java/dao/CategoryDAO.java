@@ -30,7 +30,7 @@ public class CategoryDAO {
 				category.setCategoryId(rs.getInt("CATEGORYID"));
 	            category.setName(rs.getString("NAME"));
 	            category.setGeneric(rs.getInt("ISGENERIC") == 1);
-	            category.setParentCategoryId(rs.getInt("PARENTCATEGORYID"));
+	            //category.setParentCategoryId(rs.getInt("PARENTCATEGORYID"));
 				
 				return category; // Return the category object
 
@@ -69,7 +69,7 @@ public class CategoryDAO {
 			Connection conn = DBConnection.getConnection();
 
 			StringBuilder sql = new StringBuilder("""
-					SELECT DISTINCT category.categoryid, category.name, category.isgeneric, category.parentcategoryid
+					SELECT DISTINCT category.categoryid, category.name, category.isgeneric
 					FROM category
 					LEFT JOIN categoryaccess
 					    ON category.categoryid = categoryaccess.categoryid
@@ -93,8 +93,8 @@ public class CategoryDAO {
 			while (rs.next()) {
 				CategoryModel category = new CategoryModel(rs.getInt("categoryId"),
 						rs.getString("name"),
-						rs.getInt("isGeneric") == 1, // Assuming isGeneric is stored as an integer (1 for true, 0 for false)
-						rs.getInt("parentCategoryId"));
+						rs.getInt("isGeneric") == 1); // Assuming isGeneric is stored as an integer (1 for true, 0 for false)
+						//rs.getInt("parentCategoryId"));
 				
 				categories.add(category);
 			}
@@ -142,8 +142,8 @@ public class CategoryDAO {
             Connection conn = DBConnection.getConnection();
 
             String sql = "INSERT INTO CATEGORY "
-                + "(CATEGORYID, NAME, ISGENERIC, PARENTCATEGORYID) "
-                + "VALUES (CATEGORY_SEQ.NEXTVAL, ?, ?, ?)";
+                + "(CATEGORYID, NAME, ISGENERIC) "
+                + "VALUES (CATEGORY_SEQ.NEXTVAL, ?, ?)";
 
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -151,7 +151,7 @@ public class CategoryDAO {
             ps.setInt(2, data.isGeneric() ? 1 : 0);
 
             // You chose option 2: store 0 for parent category
-            ps.setInt(3, 0);
+            //ps.setInt(3, 0);
 
             int rowsAffected = ps.executeUpdate();
 
@@ -221,7 +221,7 @@ public class CategoryDAO {
             Connection conn = DBConnection.getConnection();
 
             String sql = "UPDATE CATEGORY "
-                + "SET NAME = ?, ISGENERIC = ?, PARENTCATEGORYID = ? "
+                + "SET NAME = ?, ISGENERIC = ? "
                 + "WHERE CATEGORYID = ?";
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -230,9 +230,9 @@ public class CategoryDAO {
             ps.setInt(2, data.isGeneric() ? 1 : 0);
 
             // You decided parent category is not used yet
-            ps.setInt(3, 0);
+            //setInt(3, 0);
 
-            ps.setInt(4, data.getCategoryId());
+            ps.setInt(3, data.getCategoryId());
 
             int rowsAffected = ps.executeUpdate();
 

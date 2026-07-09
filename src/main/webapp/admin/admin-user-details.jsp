@@ -94,7 +94,7 @@
             <div class="row g-3">
 
                 <!-- NAME -->
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <label class="form-label">Full Name <span class="text-danger">*</span></label>
                     <input type="text" class="form-control rounded-3"
                            name="fullName"
@@ -104,7 +104,7 @@
                 </div>
 
                 <!-- EMAIL -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label">Email Address <span class="text-danger">*</span></label>
                     <input type="email" class="form-control rounded-3"
                            name="email"
@@ -155,14 +155,6 @@
 				</div>
 
                 <!-- STATUS (kept as UI only if not in DB) -->
-                <div class="col-md-4">
-                    <label class="form-label">Account Status</label>
-                    <select class="form-select rounded-3" name="status">
-                        <option selected>Active</option>
-                        <option>Inactive</option>
-                    </select>
-                </div>
-
                 <!-- PASSWORD -->
                 <div class="col-md-6">
                     <label class="form-label">Temporary Password <span class="text-danger">*</span></label>

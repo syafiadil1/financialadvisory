@@ -5,19 +5,16 @@ public class CategoryModel {
     private Integer categoryId;
     private String name;
     private boolean generic;
-    private Integer parentCategoryId;
 
     public CategoryModel() {}
 
     public CategoryModel(Integer categoryId,
                          String name,
-                         boolean generic,
-                         Integer parentCategoryId) {
+                         boolean generic) {
 
         this.categoryId = categoryId;
         this.name = name;
         this.generic = generic;
-        this.parentCategoryId = parentCategoryId;
     }
 
     public Integer getCategoryId() {
@@ -42,13 +39,5 @@ public class CategoryModel {
 
     public void setGeneric(boolean generic) {
         this.generic = generic;
-    }
-
-    public Integer getParentCategoryId() {
-        return parentCategoryId;
-    }
-
-    public void setParentCategoryId(Integer parentCategoryId) {
-        this.parentCategoryId = parentCategoryId;
     }
 }

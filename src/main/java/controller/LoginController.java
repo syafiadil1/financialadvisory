@@ -69,13 +69,21 @@ public class LoginController extends HttpServlet {
 
             // All other users
             response.sendRedirect("DashboardController?action=userInfo");
-
+            
         } else {
+        	
+        	setFlash(request, "danger", "Invalid email or password.");
 
             request.getSession().setAttribute("error",
                     ErrorUtil.format("LoginController.java", "doPost", "Invalid email or password"));
             response.sendRedirect("login.jsp?error=1");
         }
 	}
-
+	
+	private void setFlash(HttpServletRequest request, String type, String message) {
+		HttpSession session = request.getSession();
+		session.setAttribute("flashType", type);
+		session.setAttribute("flashMessage", message);
+	}
 }
+

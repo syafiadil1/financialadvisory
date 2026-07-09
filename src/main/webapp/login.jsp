@@ -68,6 +68,11 @@
 		border-radius: 24px;
 	}
 
+	.login-alert {
+		max-width: 430px;
+		width: 100%;
+	}
+	
 	.input-group-text {
 		border-right: 0;
 	}
@@ -164,7 +169,12 @@ if ("loginRequired".equals(error)) {
 			</div>
 
 			<!-- Right Login Section -->
-			<div class="col-lg-7 d-flex align-items-center justify-content-center px-4 py-5">
+			<div class="col-lg-7 d-flex flex-column align-items-center justify-content-center px-4 py-5">
+			
+				<div class="login-alert">
+					<jsp:include page="/includes/flash-alert.jsp"/>
+				</div>
+				
 				<div class="login-card card border-0 shadow-sm">
 					<div class="card-body p-5">
 
@@ -195,10 +205,11 @@ if ("loginRequired".equals(error)) {
 										<i class="bi bi-lock text-secondary"></i>
 									</span>
 									<input type="password" class="form-control"
-										name="password" placeholder="Enter your password" required>
-									<span class="input-group-text password-eye">
-										<i class="bi bi-eye text-secondary"></i>
-									</span>
+										id="password" name="password" placeholder="Enter your password" required>
+									<button type="button" class="input-group-text password-eye border-start-0"
+									    onclick="togglePassword()">
+									    <i class="bi bi-eye text-secondary" id="togglePasswordIcon"></i>
+									</button>
 								</div>
 							</div>
 
@@ -245,6 +256,21 @@ if ("loginRequired".equals(error)) {
 	<!-- Bootstrap JS -->
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
+	<script>
+	function togglePassword() {
+	    const password = document.getElementById("password");
+	    const icon = document.getElementById("togglePasswordIcon");
+	
+	    if (password.type === "password") {
+	        password.type = "text";
+	        icon.classList.remove("bi-eye");
+	        icon.classList.add("bi-eye-slash");
+	    } else {
+	        password.type = "password";
+	        icon.classList.remove("bi-eye-slash");
+	        icon.classList.add("bi-eye");
+	    }
+	}
+	</script>
 </body>
 </html>
